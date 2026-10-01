@@ -127,3 +127,37 @@ export interface TierInput {
   sales_start: string;
   sales_end: string;
 }
+
+// ---- payment & SMS integrations (admin) ----
+export type IntegrationProvider = "sms" | "mpesa" | "sasapay" | "stripe";
+
+/**
+ * Secrets are write-only: the API reports whether one is set and its last 4 characters,
+ * never the value. Non-secret fields (shortcode, sender ID…) come back in `value`.
+ */
+export interface IntegrationField {
+  value: string | null;
+  configured: boolean;
+  last4: string | null;
+}
+
+export interface Integration {
+  provider: IntegrationProvider;
+  enabled: boolean;
+  fields: Record<string, IntegrationField>;
+  updated_at: string | null;
+  updated_by: string | null;
+}
+
+export interface IntegrationUpdate {
+  enabled?: boolean;
+  /** Only changed fields. Omitted secrets are left as they are. */
+  fields?: Record<string, string>;
+  /** The admin's current password, required for every change. */
+  password: string;
+}
+
+export interface IntegrationTestResult {
+  ok: boolean;
+  message: string;
+}

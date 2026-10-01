@@ -2,6 +2,10 @@ import { request, setTokens } from "./client";
 import type {
   Dashboard,
   Event,
+  Integration,
+  IntegrationProvider,
+  IntegrationTestResult,
+  IntegrationUpdate,
   Order,
   PurchaseRequest,
   PurchaseResult,
@@ -98,3 +102,22 @@ export const getTicket = async (num: string) =>
 export const listTickets = async () =>
   (await request<Env<Ticket[]>>("/tickets/", { auth: true })).data;
 export const getDashboard = () => request<Dashboard>("/dashboard/", { auth: true });
+
+// ---- integrations (admin only; see docs/integrations-api.md) ----
+export const listIntegrations = async () =>
+  (await request<Env<Integration[]>>("/settings/integrations/", { auth: true })).data;
+export const updateIntegration = async (provider: IntegrationProvider, body: IntegrationUpdate) =>
+  (
+    await request<Env<Integration>>(`/settings/integrations/${provider}/`, {
+      method: "PATCH",
+      json: body,
+      auth: true,
+    })
+  ).data;
+export const testIntegration = async (provider: IntegrationProvider) =>
+  (
+    await request<Env<IntegrationTestResult>>(`/settings/integrations/${provider}/test/`, {
+      method: "POST",
+      auth: true,
+    })
+  ).data;

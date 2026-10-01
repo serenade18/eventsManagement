@@ -7,6 +7,7 @@ import jazz from "@/assets/poster-jazz.jpg";
 import tech from "@/assets/poster-tech.jpg";
 import festival from "@/assets/poster-festival.jpg";
 import type { Event, Order, Ticket, TicketType, User } from "./types";
+import { PROVIDERS } from "../integrations";
 
 interface MockUser extends User {
   password: string;
@@ -713,11 +714,122 @@ export async function mockTransport(
       demographics: [{ ageGroup: "18-25", percentage: 35, count: 857 }],
     });
   }
+
+  // ---- integrations (admin). Secrets are reduced to last4 here; the value is discarded. ----
+  if (
+    r === "settings/integrations" ||
+    r === "settings/integrations/:p" ||
+    r === "settings/integrations/:p/test"
+  ) {
+    if (!me) return needAuth();
+    if (me.user_type !== "admin")
+      return fail(403, { detail: "You do not have permission to perform this action." });
+    d.integrations ||= seedIntegrations();
+    const out = (id) => ({ provider: id, ...d.integrations[id] });
+    if (r === "settings/integrations" && method === "GET")
+      return ok({ error: false, message: "Integrations", data: PROVIDERS.map((p) => out(p.id)) });
+    const def = PROVIDERS.find((p) => p.id === seg[2]);
+    if (!def) return fail(404, { detail: "Not found." });
+    const cur = d.integrations[def.id];
+    if (r === "settings/integrations/:p" && method === "PATCH") {
+      if (!json?.password || json.password !== me.password)
+        return fail(403, { detail: "Incorrect password" });
+      const errs = {};
+      for (const [k, v] of Object.entries(json.fields || {})) {
+        const f = def.fields.find((x) => x.name === k);
+        if (!f) {
+          errs[k] = ["Unknown field."];
+          continue;
+        }
+        const m = v && f.check ? f.check(String(v)) : null;
+        if (m) {
+          errs[k] = [m];
+          continue;
+        }
+        cur.fields[k] = f.secret
+          ? { value: null, configured: !!v, last4: v ? String(v).slice(-4) : null }
+          : { value: String(v), configured: !!v, last4: null };
+      }
+      if (Object.keys(errs).length)
+        return fail(400, { error: true, message: "Validation Error", errors: errs });
+      if (typeof json.enabled === "boolean") {
+        const missing = def.fields.filter((f) => f.required && !cur.fields[f.name]?.configured);
+        if (json.enabled && missing.length)
+          return fail(400, {
+            error: true,
+            message: `Add ${missing.map((f) => f.label).join(", ")} before turning this on`,
+          });
+        cur.enabled = json.enabled;
+      }
+      cur.updated_at = iso(Date.now());
+      cur.updated_by = me.name;
+      save();
+      return ok({ error: false, message: "Integration updated", data: out(def.id) });
+    }
+    if (r === "settings/integrations/:p/test" && method === "POST") {
+      const missing = def.fields.filter((f) => f.required && !cur.fields[f.name]?.configured);
+      if (missing.length)
+        return ok({
+          error: false,
+          message: "Test",
+          data: { ok: false, message: `Missing: ${missing.map((f) => f.label).join(", ")}.` },
+        });
+      const msg = {
+        mpesa: "Got an access token from Daraja.",
+        sms: "Onfon accepted the credentials.",
+        sasapay: "SasaPay accepted the credentials.",
+        stripe: "Stripe accepted the secret key.",
+      }[def.id];
+      return ok({
+        error: false,
+        message: "Test",
+        data: { ok: true, message: `${msg} (simulated in demo mode)` },
+      });
+    }
+  }
   return fail(404, { detail: "Not found." });
+}
+
+function seedIntegrations() {
+  const blank = (id) => {
+    const def = PROVIDERS.find((p) => p.id === id);
+    const fields = {};
+    for (const f of def.fields)
+      fields[f.name] = {
+        value: f.secret ? null : (f.options?.[0]?.value ?? null),
+        configured: !!(!f.secret && f.options),
+        last4: null,
+      };
+    return { enabled: false, fields, updated_at: null, updated_by: null };
+  };
+  const all = Object.fromEntries(PROVIDERS.map((p) => [p.id, blank(p.id)]));
+  // Simulate the credentials the backend currently reads from its environment.
+  const set = (id, name, v, secret) =>
+    (all[id].fields[name] = secret
+      ? { value: null, configured: true, last4: v }
+      : { value: v, configured: true, last4: null });
+  set("mpesa", "consumer_key", "x9Qa", true);
+  set("mpesa", "consumer_secret", "7mKd", true);
+  set("mpesa", "shortcode", "174379");
+  set("mpesa", "passkey", "c919", true);
+  set("mpesa", "callback_url", "https://api.hostme.co.ke/api/mpesa/callback/");
+  all.mpesa.enabled = true;
+  set("sms", "api_key", "3f2a", true);
+  set("sms", "access_key", "b81e", true);
+  set("sms", "client_id", "hostme");
+  set("sms", "sender_id", "HostMe");
+  all.sms.enabled = true;
+  return all;
 }
 
 function route(seg: string[]) {
   if (seg[0] === "userinfo" && seg[1] === "change-password") return "userinfo/change-password";
+  if (seg[0] === "settings" && seg[1] === "integrations")
+    return seg.length === 2
+      ? "settings/integrations"
+      : seg[3] === "test"
+        ? "settings/integrations/:p/test"
+        : "settings/integrations/:p";
   if (seg.length === 2 && ["all-events", "events", "tickets", "orders"].includes(seg[0]))
     return `${seg[0]}/:id`;
   return seg[0] || "";

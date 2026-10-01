@@ -30,6 +30,7 @@ const TicketsPage = lazy(() => import("@/pages/console/tickets"));
 const ProfilePage = lazy(() => import("@/pages/console/profile"));
 const PasswordPage = lazy(() => import("@/pages/console/password"));
 const UsersPage = lazy(() => import("@/pages/admin/users"));
+const IntegrationsPage = lazy(() => import("@/pages/admin/integrations"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -124,6 +125,16 @@ function ConsoleRoutes() {
             <Lazy>
               <RequireRole roles={["admin"]}>
                 <UsersPage />
+              </RequireRole>
+            </Lazy>
+          }
+        />
+        <Route
+          path="integrations"
+          element={
+            <Lazy>
+              <RequireRole roles={["admin"]}>
+                <IntegrationsPage />
               </RequireRole>
             </Lazy>
           }

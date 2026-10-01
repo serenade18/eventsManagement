@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, Navigate, NavLink, Outlet, useLocation } from "react-router-dom";
 import {
+  PlugZap,
   CalendarDays,
   KeyRound,
   LayoutDashboard,
@@ -30,6 +31,7 @@ const NAV: { to: string; label: string; icon: typeof User; roles: UserType[]; en
   { to: "/console/events", label: "My events", icon: CalendarDays, roles: ["organizer", "admin"] },
   { to: "/console/tickets", label: "Tickets", icon: Ticket, roles: ["organizer", "admin"] },
   { to: "/console/users", label: "Users", icon: Users, roles: ["admin"] },
+  { to: "/console/integrations", label: "Integrations", icon: PlugZap, roles: ["admin"] },
   {
     to: "/console/profile",
     label: "Profile",
