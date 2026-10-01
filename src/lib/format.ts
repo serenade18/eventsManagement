@@ -93,3 +93,22 @@ export function buildIcs(opts: { title: string; date: string; time: string; loca
     "END:VEVENT", "END:VCALENDAR",
   ].join("\r\n");
 }
+
+/** Nairobi is UTC+3 all year (no DST), so datetime-local values map to a fixed offset. */
+export function toNairobiInput(iso: string | null | undefined) {
+  if (!iso) return "";
+  const d = new Date(new Date(iso).getTime() + 3 * 3600_000);
+  return d.toISOString().slice(0, 16);
+}
+export function fromNairobiInput(v: string) {
+  return v ? `${v}:00+03:00` : "";
+}
+
+export function displayTicketNumber(n: string) {
+  return n.toUpperCase();
+}
+
+/** Event's local start as a timestamp (treated as Nairobi time). */
+export function eventStartMs(date: string, time: string) {
+  return new Date(`${date}T${(time || "00:00").slice(0, 5)}:00+03:00`).getTime();
+}

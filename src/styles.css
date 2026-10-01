@@ -1,117 +1,159 @@
-@import "tailwindcss" source(none);
-@source "../src";
+@import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
-/* HostMe design system — warm "paper ticket" daytime palette with ink + vermilion. */
+/* HostMe design tokens (design.md §3–4). Components use these, never literal colours. */
 
 @theme inline {
-  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --radius-sm: 6px;
+  --radius-md: var(--radius-control);
+  --radius-lg: var(--radius-control);
+  --radius-xl: var(--radius-card);
+  --radius-2xl: var(--radius-dialog);
+
+  --color-background: var(--canvas);
+  --color-foreground: var(--text);
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--text);
+  --color-popover: var(--surface-raised);
+  --color-popover-foreground: var(--text);
+
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-deep: var(--brand-deep);
+  --color-primary: var(--brand);
+  --color-primary-foreground: var(--brand-foreground);
+
   --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary-foreground: var(--text);
   --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
+  --color-muted-foreground: var(--text-muted);
+  --color-subtle-foreground: var(--text-subtle);
+  --color-accent: var(--muted);
+  --color-accent-foreground: var(--text);
+
   --color-success: var(--success);
-  --color-success-foreground: var(--success-foreground);
+  --color-success-soft: var(--success-soft);
   --color-warning: var(--warning);
-  --color-warning-foreground: var(--warning-foreground);
-  --color-ink: var(--ink);
-  --color-ink-foreground: var(--ink-foreground);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-destructive: var(--danger);
+  --color-destructive-foreground: #ffffff;
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+
   --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-ring-offset-background: var(--background);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+  --color-input: var(--border-strong);
+  --color-ring: var(--brand);
+
+  --color-chart-1: var(--brand);
+  --color-chart-2: var(--success);
+  --color-chart-3: var(--warning);
+  --color-chart-4: var(--info);
+  --color-chart-5: var(--danger);
+
+  --color-sidebar: var(--surface);
+  --color-sidebar-foreground: var(--text);
+  --color-sidebar-primary: var(--brand);
+  --color-sidebar-primary-foreground: var(--brand-foreground);
+  --color-sidebar-accent: var(--brand-soft);
+  --color-sidebar-accent-foreground: var(--brand);
+  --color-sidebar-border: var(--border);
+  --color-sidebar-ring: var(--brand);
 }
 
 :root {
-  --radius: 0.875rem;
-  --background: oklch(0.975 0.012 85);
-  --foreground: oklch(0.2 0.02 50);
-  --card: oklch(0.995 0.005 85);
-  --card-foreground: oklch(0.2 0.02 50);
-  --popover: oklch(0.995 0.005 85);
-  --popover-foreground: oklch(0.2 0.02 50);
-  --primary: oklch(0.6 0.2 35);
-  --primary-foreground: oklch(0.985 0.01 85);
-  --secondary: oklch(0.93 0.025 85);
-  --secondary-foreground: oklch(0.22 0.02 50);
-  --muted: oklch(0.94 0.018 85);
-  --muted-foreground: oklch(0.47 0.025 55);
-  --accent: oklch(0.88 0.08 150);
-  --accent-foreground: oklch(0.25 0.06 155);
-  --destructive: oklch(0.55 0.22 25);
-  --destructive-foreground: oklch(0.985 0.01 85);
-  --success: oklch(0.55 0.15 150);
-  --success-foreground: oklch(0.985 0.01 150);
-  --warning: oklch(0.8 0.15 80);
-  --warning-foreground: oklch(0.28 0.06 60);
-  --ink: oklch(0.2 0.02 50);
-  --ink-foreground: oklch(0.97 0.012 85);
-  --border: oklch(0.88 0.02 80);
-  --input: oklch(0.86 0.02 80);
-  --ring: oklch(0.6 0.2 35);
-  --chart-1: oklch(0.6 0.2 35);
-  --chart-2: oklch(0.55 0.15 150);
-  --chart-3: oklch(0.45 0.05 50);
-  --chart-4: oklch(0.8 0.15 80);
-  --chart-5: oklch(0.65 0.12 230);
-  --gradient-hero: linear-gradient(180deg, oklch(0.2 0.02 50 / 0.15) 0%, oklch(0.2 0.02 50 / 0.85) 100%);
-  --shadow-ticket: 0 1px 0 oklch(0.88 0.02 80), 0 12px 32px -12px oklch(0.3 0.05 40 / 0.25);
-  --sidebar: oklch(0.2 0.02 50);
-  --sidebar-foreground: oklch(0.93 0.015 85);
-  --sidebar-primary: oklch(0.65 0.2 35);
-  --sidebar-primary-foreground: oklch(0.985 0.01 85);
-  --sidebar-accent: oklch(0.28 0.02 50);
-  --sidebar-accent-foreground: oklch(0.97 0.012 85);
-  --sidebar-border: oklch(0.3 0.02 50);
-  --sidebar-ring: oklch(0.65 0.2 35);
+  --brand: #1d4ed8;
+  --brand-hover: #1e40af;
+  --brand-soft: #eff6ff;
+  --brand-deep: #172554;
+  --brand-foreground: #ffffff;
+
+  --canvas: #f8fafc;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --secondary: #f1f5f9;
+  --muted: #f1f5f9;
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+
+  --text: #111827;
+  --text-muted: #4b5563;
+  --text-subtle: #6b7280;
+
+  --success: #15803d;
+  --success-soft: #dcfce7;
+  --warning: #b45309;
+  --warning-soft: #fef3c7;
+  --danger: #b91c1c;
+  --danger-soft: #fee2e2;
+  --info: #0369a1;
+  --info-soft: #e0f2fe;
+
+  --radius-control: 8px;
+  --radius-card: 14px;
+  --radius-dialog: 18px;
+  --radius: 8px;
+
+  color-scheme: light;
+}
+
+.dark {
+  --brand: #60a5fa;
+  --brand-hover: #93c5fd;
+  --brand-soft: #172554;
+  --brand-deep: #dbeafe;
+  --brand-foreground: #0b1220;
+
+  --canvas: #0b1120;
+  --surface: #111827;
+  --surface-raised: #1f2937;
+  --secondary: #1f2937;
+  --muted: #1f2937;
+  --border: #1f2a3c;
+  --border-strong: #374151;
+
+  --text: #f3f4f6;
+  --text-muted: #cbd5e1;
+  --text-subtle: #9ca3af;
+
+  --success: #4ade80;
+  --success-soft: #052e16;
+  --warning: #fbbf24;
+  --warning-soft: #3b2506;
+  --danger: #f87171;
+  --danger-soft: #3f0d0d;
+  --info: #38bdf8;
+  --info-soft: #082f49;
+
+  color-scheme: dark;
 }
 
 @layer base {
   * {
     border-color: var(--color-border);
   }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
   }
-  h1, h2, h3, h4 {
-    font-family: var(--font-display);
+  h1,
+  h2,
+  h3,
+  h4 {
     letter-spacing: -0.02em;
   }
   :focus-visible {
@@ -120,28 +162,60 @@
   }
 }
 
-@utility shadow-ticket {
-  box-shadow: var(--shadow-ticket);
+@utility tabular {
+  font-variant-numeric: tabular-nums;
 }
-@utility bg-hero-fade {
-  background-image: var(--gradient-hero);
+@utility ticket-id {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: 0.04em;
 }
 @utility perforation {
   border-top: 2px dashed var(--color-border);
 }
 
 @keyframes pop-in {
-  0% { transform: scale(0.6); opacity: 0; }
-  70% { transform: scale(1.08); opacity: 1; }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 @utility animate-pop-in {
   animation: pop-in 0.5s ease-out both;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Ticket printing: hide chrome, one ticket per page, keep the dark QR backing. */
 @media print {
-  .no-print { display: none !important; }
-  body { background: white; }
-  .print-ticket { break-after: page; box-shadow: none !important; }
-  .qr-box { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+  }
+  .print-ticket {
+    break-after: page;
+    box-shadow: none !important;
+  }
+  .qr-box {
+    background: #0f172a !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }
