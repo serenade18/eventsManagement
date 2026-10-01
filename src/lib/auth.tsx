@@ -22,6 +22,11 @@ export function homeFor(user: Pick<User, "user_type"> | null) {
   return user?.user_type === "sponsor" ? "/console/profile" : "/console";
 }
 
+/** Only same-site paths are honoured as ?next= targets. */
+export function safeNext(next: string | null) {
+  return next && next.startsWith("/") && !next.startsWith("//") ? next : null;
+}
+
 export function canManageEvents(t: UserType | undefined) {
   return t === "organizer" || t === "admin";
 }

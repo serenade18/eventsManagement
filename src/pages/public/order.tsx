@@ -98,7 +98,7 @@ export default function OrderPage() {
         )}
         {email && (
           <p className="flex items-center gap-2">
-            <Mail className="size-4" aria-hidden /> and emailed to you.
+            <Mail className="size-4" aria-hidden /> Also emailed to the address you gave.
           </p>
         )}
       </div>
