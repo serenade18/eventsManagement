@@ -56,7 +56,11 @@ export const tierSchema = z
       .min(1, "Enter a price (0 for free)")
       .refine((v) => /^\d+(\.\d{1,2})?$/.test(v), "Use a number with at most 2 decimals")
       .refine((v) => Number(v) <= 99_999_999.99, "Price is too high"),
-    quantity: z.coerce.number({ invalid_type_error: "Enter a capacity" }).int("Whole numbers only").min(1, "At least 1"),
+    quantity: z
+      .string()
+      .trim()
+      .min(1, "Enter a capacity")
+      .refine((v) => /^\d+$/.test(v) && Number(v) >= 1, "Use a whole number, at least 1"),
     sales_start: z.string().min(1, "Choose when sales start"),
     sales_end: z.string().min(1, "Choose when sales end"),
   })
