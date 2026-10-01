@@ -16,6 +16,7 @@ import PaymentPage from "@/pages/public/payment";
 import OrderPage from "@/pages/public/order";
 import TicketPage from "@/pages/public/ticket";
 import FindTicketPage from "@/pages/public/find-ticket";
+import OrganizersPage from "@/pages/public/organizers";
 import LoginPage from "@/pages/auth/login";
 import RegisterPage from "@/pages/auth/register";
 import NotFoundPage from "@/pages/not-found";
@@ -167,6 +168,7 @@ export function App() {
                 <Route path="tickets/:ticketNumber" element={<TicketPage />} />
                 <Route path="tickets/:ticketNumber/download" element={<TicketPage download />} />
                 <Route path="find-ticket" element={<FindTicketPage />} />
+                <Route path="organizers" element={<OrganizersPage />} />
                 <Route path="login" element={<LoginPage />} />
                 <Route path="register" element={<RegisterPage />} />
                 <Route path="*" element={<NotFoundPage />} />

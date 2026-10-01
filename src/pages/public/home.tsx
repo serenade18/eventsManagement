@@ -193,7 +193,7 @@ export default function HomePage() {
                   <Link to="/register">Start selling</Link>
                 </Button>
                 <Button asChild size="lg" variant="outline">
-                  <Link to="/login">Organizer sign in</Link>
+                  <Link to="/organizers">How it works</Link>
                 </Button>
               </div>
             </div>

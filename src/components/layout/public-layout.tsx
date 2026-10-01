@@ -4,8 +4,9 @@ import { Megaphone, Menu, Search, Ticket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Logo, ThemeToggle } from "./brand";
+import { InfoBar } from "./info-bar";
 import { useAuth, homeFor } from "@/lib/auth";
-import { SUPPORT_CONTACT, USE_MOCKS } from "@/lib/api/client";
+import { SUPPORT_CONTACT } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
 
 const navCls = ({ isActive }: { isActive: boolean }) =>
@@ -43,11 +44,7 @@ export function PublicLayout() {
       >
         Skip to content
       </a>
-      {USE_MOCKS && (
-        <div className="no-print bg-warning-soft px-4 py-1.5 text-center text-xs text-warning">
-          Demo mode: running against a simulated backend. Data lives in this browser only.
-        </div>
-      )}
+      <InfoBar />
       <header className="no-print sticky top-0 z-40 border-b border-border bg-surface/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
           <Logo />
@@ -58,7 +55,7 @@ export function PublicLayout() {
             <NavLink to="/find-ticket" className={navCls}>
               Find my ticket
             </NavLink>
-            <NavLink to="/register" className={navCls}>
+            <NavLink to="/organizers" className={navCls}>
               For organizers
             </NavLink>
           </nav>
@@ -91,7 +88,7 @@ export function PublicLayout() {
                       <Ticket className="size-4" /> Find my ticket
                     </span>
                   </NavLink>
-                  <NavLink to="/register" className={navCls} onClick={() => setOpen(false)}>
+                  <NavLink to="/organizers" className={navCls} onClick={() => setOpen(false)}>
                     <span className="flex items-center gap-2 py-1 text-base">
                       <Megaphone className="size-4" /> For organizers
                     </span>
@@ -126,7 +123,8 @@ export function PublicLayout() {
             <FooterLink to="/find-ticket">Find my ticket</FooterLink>
           </FooterGroup>
           <FooterGroup title="Organizers">
-            <FooterLink to="/register">Sell tickets</FooterLink>
+            <FooterLink to="/organizers">Sell tickets</FooterLink>
+            <FooterLink to="/register">Create an account</FooterLink>
             <FooterLink to="/login">Organizer sign in</FooterLink>
           </FooterGroup>
           <FooterGroup title="Support">
