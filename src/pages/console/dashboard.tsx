@@ -1,12 +1,33 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
-import { CalendarCheck2, CalendarDays, Coins, Landmark, Plus, Receipt, Ticket, Wallet } from "lucide-react";
+import {
+  CalendarCheck2,
+  CalendarDays,
+  Coins,
+  Landmark,
+  Plus,
+  Receipt,
+  Ticket,
+  Wallet,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { EmptyState, ErrorState, PageHeader } from "@/components/common/states";
 import { getDashboard } from "@/lib/api/endpoints";
 import { qk } from "@/lib/api/queries";
@@ -100,7 +121,9 @@ function DashboardBody({ d }: { d: Dashboard }) {
           </section>
           {hasMonthly && (
             <details className="rounded-xl border border-border bg-surface px-5 py-3 text-sm">
-              <summary className="cursor-pointer py-1 font-medium">Monthly figures as a table</summary>
+              <summary className="cursor-pointer py-1 font-medium">
+                Monthly figures as a table
+              </summary>
               <Table className="mt-2">
                 <TableHeader>
                   <TableRow>
@@ -114,7 +137,9 @@ function DashboardBody({ d }: { d: Dashboard }) {
                     <TableRow key={m.month}>
                       <TableCell>{m.month}</TableCell>
                       <TableCell className="text-right tabular">{num.format(m.tickets)}</TableCell>
-                      <TableCell className="text-right tabular">{money(m.revenue, false)}</TableCell>
+                      <TableCell className="text-right tabular">
+                        {money(m.revenue, false)}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -146,9 +171,21 @@ function DashboardBody({ d }: { d: Dashboard }) {
                     <TableRow key={`${e.name}-${i}`}>
                       <TableCell className="pl-5 font-medium">{e.name}</TableCell>
                       <TableCell className="text-right tabular">{num.format(e.tickets)}</TableCell>
-                      <TableCell className="text-right tabular">{money(e.revenue, false)}</TableCell>
+                      <TableCell className="text-right tabular">
+                        {money(e.revenue, false)}
+                      </TableCell>
                       <TableCell className="pr-5">
-                        <Badge variant={e.status === "Active" ? "success" : e.status === "Upcoming" ? "info" : "secondary"}>{e.status}</Badge>
+                        <Badge
+                          variant={
+                            e.status === "Active"
+                              ? "success"
+                              : e.status === "Upcoming"
+                                ? "info"
+                                : "secondary"
+                          }
+                        >
+                          {e.status}
+                        </Badge>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -163,18 +200,34 @@ function DashboardBody({ d }: { d: Dashboard }) {
   );
 }
 
-const ticketsConfig = { tickets: { label: "Tickets", color: "var(--brand)" } } satisfies ChartConfig;
-const revenueConfig = { revenue: { label: "Revenue", color: "var(--brand)" } } satisfies ChartConfig;
+const ticketsConfig = {
+  tickets: { label: "Tickets", color: "var(--brand)" },
+} satisfies ChartConfig;
+const revenueConfig = {
+  revenue: { label: "Revenue", color: "var(--brand)" },
+} satisfies ChartConfig;
 
 /** One measure per chart: tickets and revenue have different scales, so no dual axis. */
-function MonthlyChart({ data, kind, hasData }: { data: Dashboard["monthlyData"]; kind: "tickets" | "revenue"; hasData: boolean }) {
+function MonthlyChart({
+  data,
+  kind,
+  hasData,
+}: {
+  data: Dashboard["monthlyData"];
+  kind: "tickets" | "revenue";
+  hasData: boolean;
+}) {
   const isTickets = kind === "tickets";
   const total = data.reduce((s, m) => s + m[kind], 0);
   return (
     <figure className="rounded-xl border border-border bg-surface p-5">
       <figcaption className="mb-4 flex items-baseline justify-between gap-2">
-        <span className="font-semibold">{isTickets ? "Tickets sold by month" : "Revenue by month"}</span>
-        <span className="text-sm text-muted-foreground tabular">{isTickets ? `${num.format(total)} total` : `${money(total, false)} total`}</span>
+        <span className="font-semibold">
+          {isTickets ? "Tickets sold by month" : "Revenue by month"}
+        </span>
+        <span className="text-sm text-muted-foreground tabular">
+          {isTickets ? `${num.format(total)} total` : `${money(total, false)} total`}
+        </span>
       </figcaption>
       {!hasData ? (
         <div className="grid h-56 place-items-center text-sm text-muted-foreground">
@@ -183,22 +236,50 @@ function MonthlyChart({ data, kind, hasData }: { data: Dashboard["monthlyData"];
           </span>
         </div>
       ) : (
-        <ChartContainer config={isTickets ? ticketsConfig : revenueConfig} className="aspect-auto h-56 w-full">
+        <ChartContainer
+          config={isTickets ? ticketsConfig : revenueConfig}
+          className="aspect-auto h-56 w-full"
+        >
           {isTickets ? (
             <BarChart data={data} margin={{ left: -16, right: 4, top: 4 }}>
               <CartesianGrid vertical={false} strokeDasharray="0" />
               <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
               <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={48} />
               <ChartTooltip cursor={{ fillOpacity: 0.5 }} content={<ChartTooltipContent />} />
-              <Bar dataKey="tickets" fill="var(--color-tickets)" radius={[4, 4, 0, 0]} maxBarSize={36} isAnimationActive={false} />
+              <Bar
+                dataKey="tickets"
+                fill="var(--color-tickets)"
+                radius={[4, 4, 0, 0]}
+                maxBarSize={36}
+                isAnimationActive={false}
+              />
             </BarChart>
           ) : (
             <LineChart data={data} margin={{ left: 0, right: 8, top: 8 }}>
               <CartesianGrid vertical={false} />
               <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
-              <YAxis tickLine={false} axisLine={false} width={56} tickFormatter={(v: number) => (v >= 1000 ? `${Math.round(v / 1000)}k` : String(v))} />
-              <ChartTooltip content={<ChartTooltipContent formatter={(v) => <span className="tabular">{money(Number(v), false)}</span>} />} />
-              <Line dataKey="revenue" type="monotone" stroke="var(--color-revenue)" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 5 }} isAnimationActive={false} />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                width={56}
+                tickFormatter={(v: number) => (v >= 1000 ? `${Math.round(v / 1000)}k` : String(v))}
+              />
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    formatter={(v) => <span className="tabular">{money(Number(v), false)}</span>}
+                  />
+                }
+              />
+              <Line
+                dataKey="revenue"
+                type="monotone"
+                stroke="var(--color-revenue)"
+                strokeWidth={2}
+                dot={{ r: 4 }}
+                activeDot={{ r: 5 }}
+                isAnimationActive={false}
+              />
             </LineChart>
           )}
         </ChartContainer>

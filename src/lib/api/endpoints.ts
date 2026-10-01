@@ -36,7 +36,10 @@ export interface RegisterBody {
 export const register = (body: RegisterBody) =>
   request<{ message: string }>("/users/", { method: "POST", json: body });
 export const getMe = () => request<User>("/userinfo/", { auth: true });
-export type ProfileBody = Pick<User, "name" | "phone" | "organization" | "country" | "city" | "bio">;
+export type ProfileBody = Pick<
+  User,
+  "name" | "phone" | "organization" | "country" | "city" | "bio"
+>;
 export const updateMe = (body: Partial<ProfileBody>) =>
   request<User>("/userinfo/", { method: "PATCH", json: body, auth: true });
 export const deleteMe = () => request("/userinfo/", { method: "DELETE", auth: true });
@@ -54,7 +57,8 @@ export const getPublicEvent = async (id: number | string) =>
   (await request<Env<Event>>(`/all-events/${encodeURIComponent(String(id))}/`)).data;
 
 // ---- organizer events ----
-export const listMyEvents = async () => (await request<Env<Event[]>>("/events/", { auth: true })).data;
+export const listMyEvents = async () =>
+  (await request<Env<Event[]>>("/events/", { auth: true })).data;
 export const getMyEvent = async (id: number | string) =>
   (await request<Env<Event>>(`/events/${encodeURIComponent(String(id))}/`, { auth: true })).data;
 export const createEvent = (fd: FormData) =>
@@ -91,5 +95,6 @@ export const getTicket = async (num: string) =>
   (await request<Env<TicketDetail>>(`/tickets/${encodeURIComponent(num)}/`)).data;
 
 // ---- organizer data ----
-export const listTickets = async () => (await request<Env<Ticket[]>>("/tickets/", { auth: true })).data;
+export const listTickets = async () =>
+  (await request<Env<Ticket[]>>("/tickets/", { auth: true })).data;
 export const getDashboard = () => request<Dashboard>("/dashboard/", { auth: true });

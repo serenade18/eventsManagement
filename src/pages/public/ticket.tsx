@@ -20,7 +20,10 @@ export default function TicketPage({ download = false }: { download?: boolean })
   const q = useQuery({
     queryKey: qk.ticket(ticketNumber),
     queryFn: () => getTicket(ticketNumber),
-    refetchInterval: (query) => (query.state.data && !query.state.data.qr_code && Date.now() - started.current < 30_000 ? 2_000 : false),
+    refetchInterval: (query) =>
+      query.state.data && !query.state.data.qr_code && Date.now() - started.current < 30_000
+        ? 2_000
+        : false,
   });
   const eventId = q.data?.ticket_type_details.event;
   const ev = useQuery({ ...publicEventQuery(String(eventId ?? "")), enabled: !!eventId });
@@ -40,7 +43,11 @@ export default function TicketPage({ download = false }: { download?: boolean })
             icon={<SearchX />}
             title="We couldn't find that ticket"
             description="Check the ticket number in your SMS or email and try again."
-            action={<Button asChild><Link to="/find-ticket">Find my ticket</Link></Button>}
+            action={
+              <Button asChild>
+                <Link to="/find-ticket">Find my ticket</Link>
+              </Button>
+            }
           />
         ) : (
           <ErrorState error={q.error} onRetry={() => q.refetch()} />
@@ -56,7 +63,13 @@ export default function TicketPage({ download = false }: { download?: boolean })
     if (!event) return;
     downloadFile(
       `${event.title.replace(/[^\w]+/g, "-").toLowerCase()}.ics`,
-      buildIcs({ title: event.title, date: event.date, time: event.time, location: event.venue, description: `Ticket ${displayTicketNumber(t.ticket_number)} (${t.ticket_type_details.name})` }),
+      buildIcs({
+        title: event.title,
+        date: event.date,
+        time: event.time,
+        location: event.venue,
+        description: `Ticket ${displayTicketNumber(t.ticket_number)} (${t.ticket_type_details.name})`,
+      }),
       "text/calendar",
     );
   };
@@ -71,7 +84,9 @@ export default function TicketPage({ download = false }: { download?: boolean })
       <article className="print-ticket overflow-hidden rounded-2xl border border-border bg-surface shadow-sm">
         <div className="bg-brand px-6 py-5 text-primary-foreground">
           <p className="text-xs font-semibold uppercase tracking-wider opacity-80">HostMe ticket</p>
-          <h1 className="mt-1 text-2xl font-bold leading-tight">{t.ticket_type_details.event_name}</h1>
+          <h1 className="mt-1 text-2xl font-bold leading-tight">
+            {t.ticket_type_details.event_name}
+          </h1>
           <p className="mt-1 font-medium opacity-90">{t.ticket_type_details.name}</p>
         </div>
         <div className="flex justify-center px-6 pt-6">

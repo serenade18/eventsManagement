@@ -49,7 +49,11 @@ export default function OrderPage() {
             icon={<Receipt />}
             title="We couldn't find that order"
             description="Check the reference in your SMS and try again."
-            action={<Button asChild><Link to="/find-ticket">Find my ticket</Link></Button>}
+            action={
+              <Button asChild>
+                <Link to="/find-ticket">Find my ticket</Link>
+              </Button>
+            }
           />
         ) : (
           <ErrorState error={q.error} onRetry={() => q.refetch()} />
@@ -72,20 +76,28 @@ export default function OrderPage() {
         </span>
         <h1 className="text-3xl font-extrabold sm:text-4xl">You're going!</h1>
         <p className="mt-2 text-muted-foreground">
-          {o.quantity} × {o.ticket_type_details.name} for <strong className="text-foreground">{o.ticket_type_details.event_title}</strong>
+          {o.quantity} × {o.ticket_type_details.name} for{" "}
+          <strong className="text-foreground">{o.ticket_type_details.event_title}</strong>
         </p>
       </header>
 
-      <section aria-label="Order summary" className="mt-6 grid gap-4 rounded-xl border border-border bg-surface p-4 sm:grid-cols-2">
+      <section
+        aria-label="Order summary"
+        className="mt-6 grid gap-4 rounded-xl border border-border bg-surface p-4 sm:grid-cols-2"
+      >
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Order reference</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Order reference
+          </p>
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <span className="ticket-id text-lg">{displayTicketNumber(o.reference)}</span>
             <CopyButton value={o.reference} label="Copy" aria-label="Copy order reference" />
           </div>
         </div>
         <div className="sm:text-right">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Total paid</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Total paid
+          </p>
           <p className="mt-1 text-2xl font-bold tabular">{money(o.total_amount)}</p>
         </div>
       </section>
@@ -93,7 +105,8 @@ export default function OrderPage() {
       <div className="mt-4 space-y-1 text-sm text-muted-foreground">
         {phone && (
           <p className="flex items-center gap-2">
-            <MessageSquare className="size-4" aria-hidden /> Tickets sent by SMS to {maskPhone(phone)}
+            <MessageSquare className="size-4" aria-hidden /> Tickets sent by SMS to{" "}
+            {maskPhone(phone)}
           </p>
         )}
         {email && (
@@ -112,7 +125,11 @@ export default function OrderPage() {
             <TicketCard key={t.id} ticket={t} index={i} total={o.tickets.length} />
           ))}
         </div>
-        {o.tickets.length === 0 && <p className="text-muted-foreground">Your tickets are being issued. This page will update shortly.</p>}
+        {o.tickets.length === 0 && (
+          <p className="text-muted-foreground">
+            Your tickets are being issued. This page will update shortly.
+          </p>
+        )}
       </section>
       <p className="mt-8 text-center text-sm text-muted-foreground">
         Show the QR code at the gate. Keep this page or your SMS handy.

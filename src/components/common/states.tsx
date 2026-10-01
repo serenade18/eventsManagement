@@ -24,7 +24,11 @@ export function EmptyState({
         className,
       )}
     >
-      {icon && <div className="mb-4 grid size-12 place-items-center rounded-full bg-brand-soft text-brand [&_svg]:size-6">{icon}</div>}
+      {icon && (
+        <div className="mb-4 grid size-12 place-items-center rounded-full bg-brand-soft text-brand [&_svg]:size-6">
+          {icon}
+        </div>
+      )}
       <h3 className="text-lg font-semibold">{title}</h3>
       {description && <p className="mt-1 max-w-md text-sm text-muted-foreground">{description}</p>}
       {action && <div className="mt-5">{action}</div>}
@@ -141,7 +145,10 @@ export function aria(id: string, error?: string, hint?: boolean) {
 export function FormAlert({ message }: { message?: string | null | undefined }) {
   if (!message) return null;
   return (
-    <div role="alert" className="flex gap-2 rounded-lg border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger">
+    <div
+      role="alert"
+      className="flex gap-2 rounded-lg border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger"
+    >
       <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
       <span>{message}</span>
     </div>

@@ -1,13 +1,28 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarDays, Eye, MapPin, MoreHorizontal, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import {
+  CalendarDays,
+  Eye,
+  MapPin,
+  MoreHorizontal,
+  Pencil,
+  Plus,
+  Search,
+  Trash2,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { EmptyState, ErrorState, PageHeader } from "@/components/common/states";
 import { EventBadges } from "@/components/common/status";
 import { ConfirmDialog } from "@/components/common/confirm-dialog";
@@ -63,8 +78,18 @@ export default function MyEventsPage() {
           <label htmlFor="ev-search" className="sr-only">
             Search by title
           </label>
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-          <Input id="ev-search" type="search" placeholder="Search by title" className="pl-9" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Search
+            className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+            aria-hidden
+          />
+          <Input
+            id="ev-search"
+            type="search"
+            placeholder="Search by title"
+            className="pl-9"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
       </div>
 
@@ -92,7 +117,13 @@ export default function MyEventsPage() {
       ) : list.length === 0 ? (
         <EmptyState
           icon={<Search />}
-          title={search ? "No events match your search" : tab === "past" ? "No past events" : "No upcoming events"}
+          title={
+            search
+              ? "No events match your search"
+              : tab === "past"
+                ? "No past events"
+                : "No upcoming events"
+          }
           description={search ? "Try a different title." : undefined}
         />
       ) : (
@@ -125,7 +156,12 @@ function EventRow({ event: e, onDelete }: { event: Event; onDelete: () => void }
   const when = eventWhen(e.date, e.time);
   return (
     <li className="flex items-center gap-4 rounded-xl border border-border bg-surface p-3 sm:p-4">
-      <Poster src={e.poster} title={e.title} ratio="aspect-square" className="w-16 shrink-0 rounded-lg sm:w-20" />
+      <Poster
+        src={e.poster}
+        title={e.title}
+        ratio="aspect-square"
+        className="w-16 shrink-0 rounded-lg sm:w-20"
+      />
       <div className="min-w-0 flex-1">
         <Link to={`/console/events/${e.id}`} className="line-clamp-1 font-semibold hover:underline">
           {e.title}
@@ -135,7 +171,8 @@ function EventRow({ event: e, onDelete }: { event: Event; onDelete: () => void }
             <CalendarDays className="size-3.5" aria-hidden /> {when.day} · {when.time}
           </span>
           <span className="flex min-w-0 items-center gap-1">
-            <MapPin className="size-3.5 shrink-0" aria-hidden /> <span className="truncate">{e.venue}</span>
+            <MapPin className="size-3.5 shrink-0" aria-hidden />{" "}
+            <span className="truncate">{e.venue}</span>
           </span>
           <span>
             {e.ticket_types.length} {e.ticket_types.length === 1 ? "tier" : "tiers"}
@@ -156,13 +193,23 @@ function EventRow({ event: e, onDelete }: { event: Event; onDelete: () => void }
             <Pencil /> Edit
           </Link>
         </Button>
-        <Button variant="ghost" size="sm" className="text-danger hover:text-danger" onClick={onDelete}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-danger hover:text-danger"
+          onClick={onDelete}
+        >
           <Trash2 /> Delete
         </Button>
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="md:hidden" aria-label={`Actions for ${e.title}`}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            aria-label={`Actions for ${e.title}`}
+          >
             <MoreHorizontal />
           </Button>
         </DropdownMenuTrigger>

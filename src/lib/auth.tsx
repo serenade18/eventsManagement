@@ -1,4 +1,12 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { hasSession, setAuthFailureHandler, setTokens } from "./api/client";
@@ -58,7 +66,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setTokens(null);
     setUserState(null);
     setStatus("anon");
-    qc.removeQueries({ predicate: (q) => !["public-events", "order", "ticket"].includes(String(q.queryKey[0])) });
+    qc.removeQueries({
+      predicate: (q) => !["public-events", "order", "ticket"].includes(String(q.queryKey[0])),
+    });
   }, [qc]);
 
   // A refresh that fails mid-session sends the user back to login.
@@ -66,7 +76,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthFailureHandler(() => {
       clear();
       const next = location.pathname + location.search;
-      if (next.startsWith("/console")) navigate(`/login?next=${encodeURIComponent(next)}`, { replace: true });
+      if (next.startsWith("/console"))
+        navigate(`/login?next=${encodeURIComponent(next)}`, { replace: true });
     });
     return () => setAuthFailureHandler(null);
   }, [clear, location.pathname, location.search, navigate]);

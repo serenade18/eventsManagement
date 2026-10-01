@@ -20,9 +20,14 @@ export const publicEventsQuery = () =>
   queryOptions({ queryKey: qk.publicEvents, queryFn: api.listPublicEvents, staleTime: 60_000 });
 
 export const publicEventQuery = (id: string) =>
-  queryOptions({ queryKey: qk.publicEvent(id), queryFn: () => api.getPublicEvent(id), staleTime: 60_000 });
+  queryOptions({
+    queryKey: qk.publicEvent(id),
+    queryFn: () => api.getPublicEvent(id),
+    staleTime: 60_000,
+  });
 
-export const myEventsQuery = () => queryOptions({ queryKey: qk.myEvents, queryFn: api.listMyEvents });
+export const myEventsQuery = () =>
+  queryOptions({ queryKey: qk.myEvents, queryFn: api.listMyEvents });
 export const myEventQuery = (id: string) =>
   queryOptions({ queryKey: qk.myEvent(id), queryFn: () => api.getMyEvent(id) });
 export const ticketsQuery = () => queryOptions({ queryKey: qk.tickets, queryFn: api.listTickets });

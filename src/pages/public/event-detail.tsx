@@ -16,7 +16,10 @@ import { useTitle } from "@/hooks/use-title";
 export default function EventDetailPage() {
   const { id = "" } = useParams();
   const q = useQuery(publicEventQuery(id));
-  useTitle(q.data?.title, q.data ? { description: q.data.description, image: q.data.poster } : undefined);
+  useTitle(
+    q.data?.title,
+    q.data ? { description: q.data.description, image: q.data.poster } : undefined,
+  );
 
   if (q.isPending) return <DetailSkeleton />;
   if (q.isError) {
@@ -28,7 +31,11 @@ export default function EventDetailPage() {
             icon={<CalendarDays />}
             title="We couldn't find that event"
             description="It may have been removed or the link is wrong."
-            action={<Button asChild><Link to="/events">Browse events</Link></Button>}
+            action={
+              <Button asChild>
+                <Link to="/events">Browse events</Link>
+              </Button>
+            }
           />
         ) : (
           <ErrorState error={q.error} onRetry={() => q.refetch()} />
@@ -43,24 +50,42 @@ export default function EventDetailPage() {
 
   return (
     <WidePage>
-      <Link to="/events" className="mb-5 inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground">
+      <Link
+        to="/events"
+        className="mb-5 inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
+      >
         <ArrowLeft className="size-4" aria-hidden /> All events
       </Link>
       <div className="grid gap-8 lg:grid-cols-[1fr_400px] lg:gap-12">
         <div className="min-w-0 space-y-6">
-          <Poster src={e.poster} title={e.title} ratio="aspect-[16/10]" className="rounded-2xl" eager />
+          <Poster
+            src={e.poster}
+            title={e.title}
+            ratio="aspect-[16/10]"
+            className="rounded-2xl"
+            eager
+          />
           <div>
-            <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">{e.category}</span>
+            <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+              {e.category}
+            </span>
             <h1 className="mt-3 text-3xl font-bold sm:text-4xl">{e.title}</h1>
           </div>
           <dl className="grid gap-3 rounded-xl border border-border bg-surface p-4 sm:grid-cols-2">
             <Meta icon={<CalendarDays />} label="Date" value={when.day} />
             <Meta icon={<Clock />} label="Time" value={when.time} />
             <Meta icon={<MapPin />} label="Venue" value={e.venue} />
-            <Meta icon={<UserRound />} label="Organizer" value={e.organizer.organization || e.organizer.name} />
+            <Meta
+              icon={<UserRound />}
+              label="Organizer"
+              value={e.organizer.organization || e.organizer.name}
+            />
           </dl>
           {past && (
-            <div role="status" className="rounded-xl border border-border bg-muted px-4 py-3 font-medium">
+            <div
+              role="status"
+              className="rounded-xl border border-border bg-muted px-4 py-3 font-medium"
+            >
               This event has ended.
             </div>
           )}
@@ -106,7 +131,13 @@ function TierRow({ event, tier }: { event: Event; tier: TicketType }) {
   const s = saleState(tier);
   const past = isPast(event);
   const canBuy = !past && event.is_open && s.state === "open";
-  const note = past ? "Event ended" : !event.is_open ? "Sales closed" : s.state === "open" ? null : s.label;
+  const note = past
+    ? "Event ended"
+    : !event.is_open
+      ? "Sales closed"
+      : s.state === "open"
+        ? null
+        : s.label;
   return (
     <li className="rounded-xl border border-border p-4">
       <div className="flex items-start justify-between gap-3">
@@ -119,7 +150,10 @@ function TierRow({ event, tier }: { event: Event; tier: TicketType }) {
       <div className="mt-3">
         {canBuy ? (
           <Button asChild className="w-full">
-            <Link to={`/events/${event.id}/checkout?tier=${tier.id}`} aria-label={`Buy ${tier.name} ticket`}>
+            <Link
+              to={`/events/${event.id}/checkout?tier=${tier.id}`}
+              aria-label={`Buy ${tier.name} ticket`}
+            >
               Buy ticket
             </Link>
           </Button>
@@ -140,7 +174,9 @@ function Meta({ icon, label, value }: { icon: React.ReactNode; label: string; va
         {icon}
       </span>
       <div className="min-w-0">
-        <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</dt>
+        <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          {label}
+        </dt>
         <dd className="font-medium">{value}</dd>
       </div>
     </div>

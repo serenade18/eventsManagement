@@ -37,7 +37,10 @@ export function PublicLayout() {
   const [open, setOpen] = useState(false);
   return (
     <div className="flex min-h-dvh flex-col">
-      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-surface focus:px-4 focus:py-2">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-surface focus:px-4 focus:py-2"
+      >
         Skip to content
       </a>
       {USE_MOCKS && (
@@ -136,9 +139,27 @@ export function PublicLayout() {
 }
 
 /** Narrow centred column for checkout, payment and auth screens. */
-export function NarrowPage({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn("mx-auto w-full max-w-xl px-4 py-8 sm:py-12", className)}>{children}</div>;
+export function NarrowPage({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn("mx-auto w-full max-w-xl px-4 py-8 sm:py-12", className)}>{children}</div>
+  );
 }
-export function WidePage({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn("mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8", className)}>{children}</div>;
+export function WidePage({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn("mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8", className)}>
+      {children}
+    </div>
+  );
 }

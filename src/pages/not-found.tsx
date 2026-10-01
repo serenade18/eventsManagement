@@ -12,7 +12,9 @@ export default function NotFoundPage({ console = false }: { console?: boolean })
       </span>
       <p className="text-sm font-semibold text-brand">404</p>
       <h1 className="mt-1 text-3xl font-bold">Page not found</h1>
-      <p className="mt-2 text-muted-foreground">The page you're looking for doesn't exist or has moved.</p>
+      <p className="mt-2 text-muted-foreground">
+        The page you're looking for doesn't exist or has moved.
+      </p>
       <div className="mt-6 flex flex-wrap justify-center gap-2">
         {console ? (
           <Button asChild>

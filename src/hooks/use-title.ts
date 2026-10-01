@@ -1,18 +1,24 @@
 import { useEffect } from "react";
 
 /** Per-page document title, plus Open Graph tags when given (public pages). */
-export function useTitle(title: string | undefined, og?: { description?: string; image?: string | null }) {
+export function useTitle(
+  title: string | undefined,
+  og?: { description?: string; image?: string | null },
+) {
+  const hasOg = !!og;
+  const description = og?.description;
+  const image = og?.image;
   useEffect(() => {
     if (!title) return;
     document.title = `${title} · HostMe`;
-    if (!og) return;
+    if (!hasOg) return;
     setMeta("og:title", title);
-    if (og.description) {
-      setMeta("og:description", og.description);
-      setMeta("description", og.description, "name");
+    if (description) {
+      setMeta("og:description", description);
+      setMeta("description", description, "name");
     }
-    if (og.image) setMeta("og:image", og.image);
-  }, [title, og?.description, og?.image]);
+    if (image) setMeta("og:image", image);
+  }, [title, hasOg, description, image]);
 }
 
 function setMeta(key: string, content: string, attr: "property" | "name" = "property") {

@@ -20,7 +20,11 @@ export default function FindTicketPage() {
   useTitle("Find my ticket");
   const navigate = useNavigate();
   const [msg, setMsg] = useState<string | null>(null);
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<Values>({ resolver: zodResolver(lookupSchema), defaultValues: { value: "" } });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<Values>({ resolver: zodResolver(lookupSchema), defaultValues: { value: "" } });
 
   const onSubmit = async ({ value }: Values) => {
     setMsg(null);
@@ -56,11 +60,29 @@ export default function FindTicketPage() {
           <Ticket className="size-7" aria-hidden />
         </span>
         <h1 className="text-3xl font-bold">Find my ticket</h1>
-        <p className="mt-2 text-muted-foreground">Enter the ticket number or order reference from your SMS or email.</p>
+        <p className="mt-2 text-muted-foreground">
+          Enter the ticket number or order reference from your SMS or email.
+        </p>
       </div>
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4 rounded-2xl border border-border bg-surface p-5">
-        <Field id="value" label="Ticket number or order reference" error={errors.value?.message} hint="12 letters and numbers, e.g. 2BE2B6C7F346 or 2BE2B6C7F346-2">
-          <Input {...aria("value", errors.value?.message, true)} autoComplete="off" autoCapitalize="characters" spellCheck={false} className="ticket-id text-base" {...register("value")} />
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+        className="space-y-4 rounded-2xl border border-border bg-surface p-5"
+      >
+        <Field
+          id="value"
+          label="Ticket number or order reference"
+          error={errors.value?.message}
+          hint="12 letters and numbers, e.g. 2BE2B6C7F346 or 2BE2B6C7F346-2"
+        >
+          <Input
+            {...aria("value", errors.value?.message, true)}
+            autoComplete="off"
+            autoCapitalize="characters"
+            spellCheck={false}
+            className="ticket-id text-base"
+            {...register("value")}
+          />
         </Field>
         <FormAlert message={msg} />
         <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>

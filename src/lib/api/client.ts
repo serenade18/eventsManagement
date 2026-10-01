@@ -1,6 +1,4 @@
 // Thin HTTP layer: base URL, bearer auth with single-flight refresh, error normalization.
-import { mockTransport } from "./mock";
-
 const RAW_BASE = import.meta.env["VITE_API_BASE_URL"] as string | undefined;
 export const API_BASE = RAW_BASE ? RAW_BASE.replace(/\/$/, "") : "";
 export const USE_MOCKS = import.meta.env["VITE_USE_MOCKS"] === "true" || !API_BASE;
@@ -103,7 +101,11 @@ async function transport(
   headers: Record<string, string>,
   body?: BodyInit | null,
 ): Promise<RawResponse> {
-  if (USE_MOCKS) return mockTransport(method, path, headers, body ?? null);
+  if (USE_MOCKS) {
+    // The simulated backend (and its QR library) only loads in demo mode.
+    const { mockTransport } = await import("./mock");
+    return mockTransport(method, path, headers, body ?? null);
+  }
   const res = await fetch(`${API_BASE}${path}`, { method, headers, body: body ?? null });
   let data: unknown = null;
   if (res.status !== 204) {

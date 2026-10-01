@@ -1,9 +1,25 @@
-import { CheckCircle2, Clock, Lock, Star, XCircle, AlertOctagon, CalendarClock, History } from "lucide-react";
+import {
+  CheckCircle2,
+  Clock,
+  Lock,
+  Star,
+  XCircle,
+  AlertOctagon,
+  CalendarClock,
+  History,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { Event, OrderStatus } from "@/lib/api/types";
 import { isPast } from "@/lib/format";
 
-const ORDER: Record<OrderStatus, { label: string; variant: "success" | "warning" | "destructive" | "secondary"; Icon: typeof Clock }> = {
+const ORDER: Record<
+  OrderStatus,
+  {
+    label: string;
+    variant: "success" | "warning" | "destructive" | "secondary";
+    Icon: typeof Clock;
+  }
+> = {
   pending: { label: "Payment pending", variant: "warning", Icon: Clock },
   paid: { label: "Paid", variant: "success", Icon: CheckCircle2 },
   failed: { label: "Payment failed", variant: "destructive", Icon: XCircle },
@@ -20,7 +36,13 @@ export function OrderStatusBadge({ status }: { status: OrderStatus }) {
   );
 }
 
-export function EventBadges({ event, showFeatured = true }: { event: Event; showFeatured?: boolean }) {
+export function EventBadges({
+  event,
+  showFeatured = true,
+}: {
+  event: Event;
+  showFeatured?: boolean;
+}) {
   const past = isPast(event);
   return (
     <span className="inline-flex flex-wrap gap-1.5">

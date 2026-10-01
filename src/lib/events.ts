@@ -1,7 +1,8 @@
 import type { Event } from "./api/types";
 import { eventStartMs, isPast, lowestPrice, todayNairobi } from "./format";
 
-export const bySoonest = (a: Event, b: Event) => eventStartMs(a.date, a.time) - eventStartMs(b.date, b.time);
+export const bySoonest = (a: Event, b: Event) =>
+  eventStartMs(a.date, a.time) - eventStartMs(b.date, b.time);
 
 export function upcoming(events: Event[]) {
   const today = todayNairobi();

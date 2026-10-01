@@ -97,7 +97,13 @@ export interface PurchaseRequest {
 
 export type PurchaseResult =
   | { kind: "issued"; order: Order }
-  | { kind: "awaiting_payment"; reference: string; checkoutRequestId: string; amount: number; expiresAt: string };
+  | {
+      kind: "awaiting_payment";
+      reference: string;
+      checkoutRequestId: string;
+      amount: number;
+      expiresAt: string;
+    };
 
 export interface Dashboard {
   overview: {

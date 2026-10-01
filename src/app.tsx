@@ -33,7 +33,15 @@ const UsersPage = lazy(() => import("@/pages/admin/users"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: (count, err) => count < 1 && !(err && typeof err === "object" && "status" in err && Number(err.status) >= 400 && Number(err.status) < 500),
+      retry: (count, err) =>
+        count < 1 &&
+        !(
+          err &&
+          typeof err === "object" &&
+          "status" in err &&
+          Number(err.status) >= 400 &&
+          Number(err.status) < 500
+        ),
       refetchOnWindowFocus: false,
     },
   },
@@ -49,15 +57,92 @@ function ConsoleRoutes() {
   return (
     <Routes>
       <Route element={<ConsoleLayout />}>
-        <Route index element={<Lazy><RequireRole roles={[...ORG]}><DashboardPage /></RequireRole></Lazy>} />
-        <Route path="events" element={<Lazy><RequireRole roles={[...ORG]}><MyEventsPage /></RequireRole></Lazy>} />
-        <Route path="events/new" element={<Lazy><RequireRole roles={[...ORG]}><EventFormPage /></RequireRole></Lazy>} />
-        <Route path="events/:id" element={<Lazy><RequireRole roles={[...ORG]}><ConsoleEventPage /></RequireRole></Lazy>} />
-        <Route path="events/:id/edit" element={<Lazy><RequireRole roles={[...ORG]}><EventFormPage /></RequireRole></Lazy>} />
-        <Route path="tickets" element={<Lazy><RequireRole roles={[...ORG]}><TicketsPage /></RequireRole></Lazy>} />
-        <Route path="users" element={<Lazy><RequireRole roles={["admin"]}><UsersPage /></RequireRole></Lazy>} />
-        <Route path="profile" element={<Lazy><ProfilePage /></Lazy>} />
-        <Route path="password" element={<Lazy><PasswordPage /></Lazy>} />
+        <Route
+          index
+          element={
+            <Lazy>
+              <RequireRole roles={[...ORG]}>
+                <DashboardPage />
+              </RequireRole>
+            </Lazy>
+          }
+        />
+        <Route
+          path="events"
+          element={
+            <Lazy>
+              <RequireRole roles={[...ORG]}>
+                <MyEventsPage />
+              </RequireRole>
+            </Lazy>
+          }
+        />
+        <Route
+          path="events/new"
+          element={
+            <Lazy>
+              <RequireRole roles={[...ORG]}>
+                <EventFormPage />
+              </RequireRole>
+            </Lazy>
+          }
+        />
+        <Route
+          path="events/:id"
+          element={
+            <Lazy>
+              <RequireRole roles={[...ORG]}>
+                <ConsoleEventPage />
+              </RequireRole>
+            </Lazy>
+          }
+        />
+        <Route
+          path="events/:id/edit"
+          element={
+            <Lazy>
+              <RequireRole roles={[...ORG]}>
+                <EventFormPage />
+              </RequireRole>
+            </Lazy>
+          }
+        />
+        <Route
+          path="tickets"
+          element={
+            <Lazy>
+              <RequireRole roles={[...ORG]}>
+                <TicketsPage />
+              </RequireRole>
+            </Lazy>
+          }
+        />
+        <Route
+          path="users"
+          element={
+            <Lazy>
+              <RequireRole roles={["admin"]}>
+                <UsersPage />
+              </RequireRole>
+            </Lazy>
+          }
+        />
+        <Route
+          path="profile"
+          element={
+            <Lazy>
+              <ProfilePage />
+            </Lazy>
+          }
+        />
+        <Route
+          path="password"
+          element={
+            <Lazy>
+              <PasswordPage />
+            </Lazy>
+          }
+        />
         <Route path="*" element={<NotFoundPage console />} />
       </Route>
     </Routes>

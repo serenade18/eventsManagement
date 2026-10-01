@@ -1,6 +1,16 @@
 import { useState } from "react";
 import { Link, Navigate, NavLink, Outlet, useLocation } from "react-router-dom";
-import { CalendarDays, KeyRound, LayoutDashboard, LogOut, Menu, Ticket, User, Users, ExternalLink } from "lucide-react";
+import {
+  CalendarDays,
+  KeyRound,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  Ticket,
+  User,
+  Users,
+  ExternalLink,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -10,12 +20,28 @@ import type { UserType } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
 const NAV: { to: string; label: string; icon: typeof User; roles: UserType[]; end?: boolean }[] = [
-  { to: "/console", label: "Dashboard", icon: LayoutDashboard, roles: ["organizer", "admin"], end: true },
+  {
+    to: "/console",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    roles: ["organizer", "admin"],
+    end: true,
+  },
   { to: "/console/events", label: "My events", icon: CalendarDays, roles: ["organizer", "admin"] },
   { to: "/console/tickets", label: "Tickets", icon: Ticket, roles: ["organizer", "admin"] },
   { to: "/console/users", label: "Users", icon: Users, roles: ["admin"] },
-  { to: "/console/profile", label: "Profile", icon: User, roles: ["organizer", "admin", "sponsor"] },
-  { to: "/console/password", label: "Change password", icon: KeyRound, roles: ["organizer", "admin", "sponsor"] },
+  {
+    to: "/console/profile",
+    label: "Profile",
+    icon: User,
+    roles: ["organizer", "admin", "sponsor"],
+  },
+  {
+    to: "/console/password",
+    label: "Change password",
+    icon: KeyRound,
+    roles: ["organizer", "admin", "sponsor"],
+  },
 ];
 
 function SideNav({ onNavigate }: { onNavigate?: () => void }) {
@@ -36,7 +62,9 @@ function SideNav({ onNavigate }: { onNavigate?: () => void }) {
             className={({ isActive }) =>
               cn(
                 "flex min-h-11 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors",
-                isActive ? "bg-brand-soft text-brand" : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                isActive
+                  ? "bg-brand-soft text-brand"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
               )
             }
           >
@@ -54,7 +82,10 @@ function SideNav({ onNavigate }: { onNavigate?: () => void }) {
       </nav>
       <div className="border-t border-border p-3">
         <div className="flex items-center gap-3 px-2 py-2">
-          <div className="grid size-9 shrink-0 place-items-center rounded-full bg-brand-soft text-sm font-semibold text-brand" aria-hidden>
+          <div
+            className="grid size-9 shrink-0 place-items-center rounded-full bg-brand-soft text-sm font-semibold text-brand"
+            aria-hidden
+          >
             {user?.name.slice(0, 1).toUpperCase()}
           </div>
           <div className="min-w-0 flex-1">
@@ -63,7 +94,11 @@ function SideNav({ onNavigate }: { onNavigate?: () => void }) {
           </div>
           <ThemeToggle />
         </div>
-        <Button variant="ghost" className="w-full justify-start text-muted-foreground" onClick={logout}>
+        <Button
+          variant="ghost"
+          className="w-full justify-start text-muted-foreground"
+          onClick={logout}
+        >
           <LogOut /> Log out
         </Button>
       </div>
@@ -101,7 +136,10 @@ export function ConsoleLayout() {
           </Sheet>
           <Logo to="/console" />
         </header>
-        <main id="main" className="mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
+        <main
+          id="main"
+          className="mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-6 lg:px-10 lg:py-8"
+        >
           {status === "authed" ? <Outlet /> : <PageSkeleton />}
         </main>
       </div>

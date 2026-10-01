@@ -17,7 +17,10 @@ const optionalEmail = z
   .string()
   .trim()
   .max(255)
-  .refine((v) => v === "" || z.string().email().safeParse(v).success, "Enter a valid email address");
+  .refine(
+    (v) => v === "" || z.string().email().safeParse(v).success,
+    "Enter a valid email address",
+  );
 
 export const loginSchema = z.object({
   email: z.string().trim().min(1, "Enter your email").email("Enter a valid email address"),
@@ -28,7 +31,12 @@ export type LoginValues = z.infer<typeof loginSchema>;
 export const registerSchema = z
   .object({
     name: z.string().trim().min(1, "Enter your name").max(255),
-    email: z.string().trim().min(1, "Enter your email").email("Enter a valid email address").max(255),
+    email: z
+      .string()
+      .trim()
+      .min(1, "Enter your email")
+      .email("Enter a valid email address")
+      .max(255),
     phone,
     organization: z.string().trim().max(100),
     user_type: z.enum(["organizer", "sponsor"]),
@@ -92,11 +100,16 @@ export const eventSchema = z
   })
   .superRefine((v, ctx) => {
     if (v.tiersLocked) return;
-    if (v.tiers.length === 0) ctx.addIssue({ code: "custom", path: ["tiers"], message: "Add at least one ticket tier" });
+    if (v.tiers.length === 0)
+      ctx.addIssue({ code: "custom", path: ["tiers"], message: "Add at least one ticket tier" });
     const eventStart = v.date && v.time ? `${v.date}T${v.time}` : "";
     v.tiers.forEach((t, i) => {
       if (eventStart && t.sales_end && t.sales_end > eventStart)
-        ctx.addIssue({ code: "custom", path: ["tiers", i, "sales_end"], message: "Sales can't end after the event starts" });
+        ctx.addIssue({
+          code: "custom",
+          path: ["tiers", i, "sales_end"],
+          message: "Sales can't end after the event starts",
+        });
     });
   });
 export type EventValues = z.infer<typeof eventSchema>;
@@ -118,7 +131,10 @@ export const passwordSchema = z
     new_password: password,
     confirm: z.string(),
   })
-  .refine((v) => v.new_password === v.confirm, { path: ["confirm"], message: "Passwords don't match" })
+  .refine((v) => v.new_password === v.confirm, {
+    path: ["confirm"],
+    message: "Passwords don't match",
+  })
   .refine((v) => v.new_password !== v.current_password, {
     path: ["new_password"],
     message: "Choose a password different from your current one",
@@ -130,5 +146,8 @@ export const lookupSchema = z.object({
     .string()
     .trim()
     .min(1, "Enter a ticket number or order reference")
-    .regex(/^[0-9a-fA-F]{12}(-\d+)?$/, "That doesn't look right: it's 12 letters and numbers, sometimes followed by -2, -3…"),
+    .regex(
+      /^[0-9a-fA-F]{12}(-\d+)?$/,
+      "That doesn't look right: it's 12 letters and numbers, sometimes followed by -2, -3…",
+    ),
 });

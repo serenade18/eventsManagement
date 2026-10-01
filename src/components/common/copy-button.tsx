@@ -3,7 +3,11 @@ import { Check, Copy } from "lucide-react";
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { toast } from "sonner";
 
-export function CopyButton({ value, label = "Copy", ...props }: { value: string; label?: string } & Omit<ButtonProps, "value">) {
+export function CopyButton({
+  value,
+  label = "Copy",
+  ...props
+}: { value: string; label?: string } & Omit<ButtonProps, "value">) {
   const [done, setDone] = useState(false);
   return (
     <Button

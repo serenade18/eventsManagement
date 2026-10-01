@@ -10,7 +10,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
-import { aria, ErrorState, Field, FormAlert, PageHeader, Spinner } from "@/components/common/states";
+import {
+  aria,
+  ErrorState,
+  Field,
+  FormAlert,
+  PageHeader,
+  Spinner,
+} from "@/components/common/states";
 import { ApiError, errorMessage } from "@/lib/api/client";
 import { createEvent, listMyEvents, updateEvent } from "@/lib/api/endpoints";
 import { myEventQuery, qk, ticketsQuery } from "@/lib/api/queries";
@@ -21,7 +28,18 @@ import { eventSchema, POSTER_TYPES, type EventValues, type TierValues } from "@/
 import { useTitle } from "@/hooks/use-title";
 import { cn } from "@/lib/utils";
 
-const CATEGORIES = ["Music", "Festival", "Tech", "Arts", "Comedy", "Sports", "Business", "Food & Drink", "Church", "Community"];
+const CATEGORIES = [
+  "Music",
+  "Festival",
+  "Tech",
+  "Arts",
+  "Comedy",
+  "Sports",
+  "Business",
+  "Food & Drink",
+  "Church",
+  "Community",
+];
 const TIERS_REPLACE_REFUSED = "Ticket types that already have orders cannot be replaced";
 
 const blankTier = (eventStart?: string): TierValues => ({
@@ -108,7 +126,10 @@ function EventForm({ event, hasSales }: { event: Event | undefined; hasSales: bo
     setValue,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm<EventValues>({ resolver: zodResolver(eventSchema), defaultValues: toValues(event, hasSales) });
+  } = useForm<EventValues>({
+    resolver: zodResolver(eventSchema),
+    defaultValues: toValues(event, hasSales),
+  });
   const tiers = useFieldArray({ control, name: "tiers" });
   const [date, time, isFree, locked] = watch(["date", "time", "is_free", "tiersLocked"]);
   const eventStart = date && time ? `${date}T${time}` : undefined;
@@ -161,7 +182,9 @@ function EventForm({ event, hasSales }: { event: Event | undefined; hasSales: bo
       if (!(e instanceof ApiError)) return setFormError(errorMessage(e));
       if (e.message === TIERS_REPLACE_REFUSED) {
         setValue("tiersLocked", true);
-        setFormError("This event already has orders, so its ticket tiers are now locked. Save again to update the other details.");
+        setFormError(
+          "This event already has orders, so its ticket tiers are now locked. Save again to update the other details.",
+        );
         return;
       }
       let mapped = false;
@@ -186,14 +209,28 @@ function EventForm({ event, hasSales }: { event: Event | undefined; hasSales: bo
         <ArrowLeft className="size-4" aria-hidden /> {event ? "Back to event" : "My events"}
       </Link>
       <PageHeader title={event ? "Edit event" : "Create event"} />
-      <form onSubmit={handleSubmit(onSubmit, () => setFormError("Please fix the highlighted fields"))} noValidate className="space-y-6">
+      <form
+        onSubmit={handleSubmit(onSubmit, () => setFormError("Please fix the highlighted fields"))}
+        noValidate
+        className="space-y-6"
+      >
         <Card title="Event details">
           <div className="grid gap-4 sm:grid-cols-2">
             <Field id="title" label="Title" error={err("title")} className="sm:col-span-2">
               <Input {...aria("title", err("title"))} {...register("title")} />
             </Field>
-            <Field id="category" label="Category" error={err("category")} hint="Pick one or type your own.">
-              <Input {...aria("category", err("category"), true)} list="categories" autoComplete="off" {...register("category")} />
+            <Field
+              id="category"
+              label="Category"
+              error={err("category")}
+              hint="Pick one or type your own."
+            >
+              <Input
+                {...aria("category", err("category"), true)}
+                list="categories"
+                autoComplete="off"
+                {...register("category")}
+              />
               <datalist id="categories">
                 {CATEGORIES.map((c) => (
                   <option key={c} value={c} />
@@ -203,14 +240,28 @@ function EventForm({ event, hasSales }: { event: Event | undefined; hasSales: bo
             <Field id="venue" label="Venue" error={err("venue")}>
               <Input {...aria("venue", err("venue"))} {...register("venue")} />
             </Field>
-            <Field id="date" label="Date" error={err("date")} hint={date && date < todayNairobi() ? "This date is in the past." : undefined}>
+            <Field
+              id="date"
+              label="Date"
+              error={err("date")}
+              hint={date && date < todayNairobi() ? "This date is in the past." : undefined}
+            >
               <Input {...aria("date", err("date"), true)} type="date" {...register("date")} />
             </Field>
             <Field id="time" label="Start time" error={err("time")}>
               <Input {...aria("time", err("time"))} type="time" {...register("time")} />
             </Field>
-            <Field id="description" label="Description" error={err("description")} className="sm:col-span-2">
-              <Textarea {...aria("description", err("description"))} rows={5} {...register("description")} />
+            <Field
+              id="description"
+              label="Description"
+              error={err("description")}
+              className="sm:col-span-2"
+            >
+              <Textarea
+                {...aria("description", err("description"))}
+                rows={5}
+                {...register("description")}
+              />
             </Field>
           </div>
         </Card>
@@ -219,15 +270,39 @@ function EventForm({ event, hasSales }: { event: Event | undefined; hasSales: bo
           <Controller
             control={control}
             name="poster"
-            render={({ field }) => <PosterUpload file={field.value} existing={event?.poster ?? null} onChange={field.onChange} error={err("poster")} />}
+            render={({ field }) => (
+              <PosterUpload
+                file={field.value}
+                existing={event?.poster ?? null}
+                onChange={field.onChange}
+                error={err("poster")}
+              />
+            )}
           />
         </Card>
 
         <Card title="Settings">
           <div className="divide-y divide-border">
-            <Toggle control={control} name="is_open" label="On sale" desc="Buyers can purchase tickets." />
-            <Toggle control={control} name="is_free" label="Free event" desc="All tiers are free (price 0)." />
-            {isAdmin && <Toggle control={control} name="is_feature" label="Featured" desc="Show on the home page Featured section." />}
+            <Toggle
+              control={control}
+              name="is_open"
+              label="On sale"
+              desc="Buyers can purchase tickets."
+            />
+            <Toggle
+              control={control}
+              name="is_free"
+              label="Free event"
+              desc="All tiers are free (price 0)."
+            />
+            {isAdmin && (
+              <Toggle
+                control={control}
+                name="is_feature"
+                label="Featured"
+                desc="Show on the home page Featured section."
+              />
+            )}
           </div>
         </Card>
 
@@ -235,7 +310,12 @@ function EventForm({ event, hasSales }: { event: Event | undefined; hasSales: bo
           title="Ticket tiers"
           action={
             !locked && (
-              <Button type="button" variant="outline" size="sm" onClick={() => tiers.append(blankTier(eventStart))}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => tiers.append(blankTier(eventStart))}
+              >
                 <Plus /> Add tier
               </Button>
             )
@@ -257,7 +337,9 @@ function EventForm({ event, hasSales }: { event: Event | undefined; hasSales: bo
                 />
               ))}
               {errors.tiers?.root?.message || errors.tiers?.message ? (
-                <p className="text-sm font-medium text-danger">{errors.tiers?.root?.message ?? errors.tiers?.message}</p>
+                <p className="text-sm font-medium text-danger">
+                  {errors.tiers?.root?.message ?? errors.tiers?.message}
+                </p>
               ) : null}
             </div>
           )}
@@ -277,7 +359,15 @@ function EventForm({ event, hasSales }: { event: Event | undefined; hasSales: bo
   );
 }
 
-function Card({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
+function Card({
+  title,
+  action,
+  children,
+}: {
+  title: string;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
     <section className="rounded-xl border border-border bg-surface p-5">
       <div className="mb-4 flex items-center justify-between gap-2">
@@ -289,7 +379,17 @@ function Card({ title, action, children }: { title: string; action?: React.React
   );
 }
 
-function Toggle({ control, name, label, desc }: { control: ReturnType<typeof useForm<EventValues>>["control"]; name: "is_open" | "is_free" | "is_feature"; label: string; desc: string }) {
+function Toggle({
+  control,
+  name,
+  label,
+  desc,
+}: {
+  control: ReturnType<typeof useForm<EventValues>>["control"];
+  name: "is_open" | "is_free" | "is_feature";
+  label: string;
+  desc: string;
+}) {
   const id = `toggle-${name}`;
   return (
     <div className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
@@ -304,7 +404,14 @@ function Toggle({ control, name, label, desc }: { control: ReturnType<typeof use
       <Controller
         control={control}
         name={name}
-        render={({ field }) => <Switch id={id} aria-describedby={`${id}-desc`} checked={field.value} onCheckedChange={field.onChange} />}
+        render={({ field }) => (
+          <Switch
+            id={id}
+            aria-describedby={`${id}-desc`}
+            checked={field.value}
+            onCheckedChange={field.onChange}
+          />
+        )}
       />
     </div>
   );
@@ -332,29 +439,75 @@ function TierEditor({
       <div className="mb-3 flex items-center justify-between">
         <legend className="text-sm font-semibold">Tier {i + 1}</legend>
         {canRemove && (
-          <Button type="button" variant="ghost" size="sm" className="text-danger hover:text-danger" onClick={onRemove} aria-label={`Remove tier ${i + 1}`}>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="text-danger hover:text-danger"
+            onClick={onRemove}
+            aria-label={`Remove tier ${i + 1}`}
+          >
             <Trash2 /> Remove
           </Button>
         )}
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field id={id("name")} label="Name" error={e("name")}>
-          <Input {...aria(id("name"), e("name"))} placeholder="Regular, VIP…" {...register(`tiers.${i}.name`)} />
+          <Input
+            {...aria(id("name"), e("name"))}
+            placeholder="Regular, VIP…"
+            {...register(`tiers.${i}.name`)}
+          />
         </Field>
         <Field id={id("description")} label="Description" optional error={e("description")}>
-          <Input {...aria(id("description"), e("description"))} {...register(`tiers.${i}.description`)} />
+          <Input
+            {...aria(id("description"), e("description"))}
+            {...register(`tiers.${i}.description`)}
+          />
         </Field>
-        <Field id={id("price")} label="Price (KES)" error={e("price")} hint={isFree ? "Free event: sent as 0." : "0 for free."}>
-          <Input {...aria(id("price"), e("price"), true)} inputMode="decimal" disabled={isFree} {...register(`tiers.${i}.price`)} />
+        <Field
+          id={id("price")}
+          label="Price (KES)"
+          error={e("price")}
+          hint={isFree ? "Free event: sent as 0." : "0 for free."}
+        >
+          <Input
+            {...aria(id("price"), e("price"), true)}
+            inputMode="decimal"
+            disabled={isFree}
+            {...register(`tiers.${i}.price`)}
+          />
         </Field>
         <Field id={id("quantity")} label="Capacity" error={e("quantity")}>
-          <Input {...aria(id("quantity"), e("quantity"))} inputMode="numeric" {...register(`tiers.${i}.quantity`)} />
+          <Input
+            {...aria(id("quantity"), e("quantity"))}
+            inputMode="numeric"
+            {...register(`tiers.${i}.quantity`)}
+          />
         </Field>
-        <Field id={id("sales_start")} label="Sales start" error={e("sales_start")} hint="Nairobi time">
-          <Input {...aria(id("sales_start"), e("sales_start"), true)} type="datetime-local" {...register(`tiers.${i}.sales_start`)} />
+        <Field
+          id={id("sales_start")}
+          label="Sales start"
+          error={e("sales_start")}
+          hint="Nairobi time"
+        >
+          <Input
+            {...aria(id("sales_start"), e("sales_start"), true)}
+            type="datetime-local"
+            {...register(`tiers.${i}.sales_start`)}
+          />
         </Field>
-        <Field id={id("sales_end")} label="Sales end" error={e("sales_end")} hint="No later than the event start">
-          <Input {...aria(id("sales_end"), e("sales_end"), true)} type="datetime-local" {...register(`tiers.${i}.sales_end`)} />
+        <Field
+          id={id("sales_end")}
+          label="Sales end"
+          error={e("sales_end")}
+          hint="No later than the event start"
+        >
+          <Input
+            {...aria(id("sales_end"), e("sales_end"), true)}
+            type="datetime-local"
+            {...register(`tiers.${i}.sales_end`)}
+          />
         </Field>
       </div>
     </fieldset>
@@ -385,15 +538,38 @@ function LockedTiers({ tiers }: { tiers: Event["ticket_types"] }) {
   );
 }
 
-function PosterUpload({ file, existing, onChange, error }: { file: File | null; existing: string | null; onChange: (f: File | null) => void; error?: string | undefined }) {
+function PosterUpload({
+  file,
+  existing,
+  onChange,
+  error,
+}: {
+  file: File | null;
+  existing: string | null;
+  onChange: (f: File | null) => void;
+  error?: string | undefined;
+}) {
   const input = useRef<HTMLInputElement>(null);
   const preview = useMemo(() => (file ? URL.createObjectURL(file) : null), [file]);
   useEffect(() => () => void (preview && URL.revokeObjectURL(preview)), [preview]);
   const shown = preview ?? existing;
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-      <div className={cn("relative grid aspect-[4/3] w-full shrink-0 place-items-center overflow-hidden rounded-lg border border-dashed border-border bg-muted sm:w-56", error && "border-danger")}>
-        {shown ? <img src={shown} alt="Poster preview" className="absolute inset-0 size-full object-cover" /> : <ImagePlus className="size-8 text-muted-foreground" aria-hidden />}
+      <div
+        className={cn(
+          "relative grid aspect-[4/3] w-full shrink-0 place-items-center overflow-hidden rounded-lg border border-dashed border-border bg-muted sm:w-56",
+          error && "border-danger",
+        )}
+      >
+        {shown ? (
+          <img
+            src={shown}
+            alt="Poster preview"
+            className="absolute inset-0 size-full object-cover"
+          />
+        ) : (
+          <ImagePlus className="size-8 text-muted-foreground" aria-hidden />
+        )}
       </div>
       <div className="space-y-2 text-sm">
         <p className="text-muted-foreground">JPG, PNG or WebP, up to 5 MB.</p>

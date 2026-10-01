@@ -23,7 +23,10 @@ export function EventCard({ event }: { event: Event }) {
           {event.category}
         </span>
         <h3 className="line-clamp-2 text-base font-semibold leading-snug">
-          <Link to={`/events/${event.id}`} className="after:absolute after:inset-0 focus:outline-none">
+          <Link
+            to={`/events/${event.id}`}
+            className="after:absolute after:inset-0 focus:outline-none"
+          >
             {event.title}
           </Link>
         </h3>

@@ -4,12 +4,24 @@ import { useQuery } from "@tanstack/react-query";
 import { CalendarSearch, Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { EventCard, EventCardSkeleton, EventGrid } from "@/components/events/event-card";
 import { EmptyState, ErrorState, PageHeader } from "@/components/common/states";
 import { WidePage } from "@/components/layout/public-layout";
 import { publicEventsQuery } from "@/lib/api/queries";
-import { categories, filterEvents, type DateFilter, type EventFilters, type PriceFilter } from "@/lib/events";
+import {
+  categories,
+  filterEvents,
+  type DateFilter,
+  type EventFilters,
+  type PriceFilter,
+} from "@/lib/events";
 import { useTitle } from "@/hooks/use-title";
 
 const WHEN: { value: DateFilter; label: string }[] = [
@@ -32,8 +44,12 @@ export default function EventsPage() {
   const f: EventFilters = {
     q: params.get("q") ?? "",
     category: params.get("category") ?? "",
-    when: (WHEN.some((w) => w.value === params.get("when")) ? params.get("when") : "upcoming") as DateFilter,
-    price: (PRICE.some((p) => p.value === params.get("price")) ? params.get("price") : "all") as PriceFilter,
+    when: (WHEN.some((w) => w.value === params.get("when"))
+      ? params.get("when")
+      : "upcoming") as DateFilter,
+    price: (PRICE.some((p) => p.value === params.get("price"))
+      ? params.get("price")
+      : "all") as PriceFilter,
   };
   const set = (k: keyof EventFilters, v: string) => {
     const next = new URLSearchParams(params);
@@ -46,18 +62,24 @@ export default function EventsPage() {
 
   const q = useQuery(publicEventsQuery());
   const cats = useMemo(() => (q.data ? categories(q.data) : []), [q.data]);
-  const results = useMemo(() => (q.data ? filterEvents(q.data, f) : []), [q.data, f.q, f.category, f.when, f.price]); // eslint-disable-line react-hooks/exhaustive-deps
+  const results = q.data ? filterEvents(q.data, f) : [];
 
   return (
     <WidePage>
-      <PageHeader title="Events" description="Concerts, festivals, talks and more. Find something to go to." />
+      <PageHeader
+        title="Events"
+        description="Concerts, festivals, talks and more. Find something to go to."
+      />
 
       <div className="mb-6 grid gap-3 rounded-xl border border-border bg-surface p-3 sm:grid-cols-2 lg:grid-cols-[1fr_200px_180px_160px]">
         <div className="relative sm:col-span-2 lg:col-span-1">
           <label htmlFor="search" className="sr-only">
             Search events
           </label>
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+          <Search
+            className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+            aria-hidden
+          />
           <Input
             id="search"
             type="search"
@@ -67,10 +89,22 @@ export default function EventsPage() {
             onChange={(e) => set("q", e.target.value)}
           />
         </div>
-        <FilterSelect label="Category" value={f.category || ALL} onChange={(v) => set("category", v === ALL ? "" : v)}
-          options={[{ value: ALL, label: "All categories" }, ...cats.map((c) => ({ value: c, label: c }))]} />
+        <FilterSelect
+          label="Category"
+          value={f.category || ALL}
+          onChange={(v) => set("category", v === ALL ? "" : v)}
+          options={[
+            { value: ALL, label: "All categories" },
+            ...cats.map((c) => ({ value: c, label: c })),
+          ]}
+        />
         <FilterSelect label="Date" value={f.when} onChange={(v) => set("when", v)} options={WHEN} />
-        <FilterSelect label="Price" value={f.price} onChange={(v) => set("price", v)} options={PRICE} />
+        <FilterSelect
+          label="Price"
+          value={f.price}
+          onChange={(v) => set("price", v)}
+          options={PRICE}
+        />
       </div>
 
       <div className="mb-4 flex min-h-9 items-center justify-between gap-2" aria-live="polite">
@@ -102,15 +136,35 @@ export default function EventsPage() {
         <EmptyState
           icon={<CalendarSearch />}
           title="No events match"
-          description={active ? "Try a different search or clear your filters." : "There are no upcoming events right now."}
-          action={active && <Button variant="outline" onClick={() => setParams({}, { replace: true })}>Clear filters</Button>}
+          description={
+            active
+              ? "Try a different search or clear your filters."
+              : "There are no upcoming events right now."
+          }
+          action={
+            active && (
+              <Button variant="outline" onClick={() => setParams({}, { replace: true })}>
+                Clear filters
+              </Button>
+            )
+          }
         />
       )}
     </WidePage>
   );
 }
 
-function FilterSelect({ label, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options: { value: string; label: string }[] }) {
+function FilterSelect({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+}) {
   return (
     <Select value={value} onValueChange={onChange}>
       <SelectTrigger aria-label={label}>

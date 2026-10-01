@@ -18,7 +18,14 @@ export default function LoginPage() {
   const [params] = useSearchParams();
   const next = safeNext(params.get("next"));
   const [msg, setMsg] = useState<string | null>(null);
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginValues>({ resolver: zodResolver(loginSchema), defaultValues: { email: "", password: "" } });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
+  });
 
   if (status === "authed" && !isSubmitting) return <Navigate to={next ?? homeFor(user)} replace />;
 
@@ -28,7 +35,11 @@ export default function LoginPage() {
       const u = await login(v.email, v.password);
       navigate(next ?? homeFor(u), { replace: true });
     } catch (e) {
-      setMsg(e instanceof ApiError && e.status === 401 ? "Email or password is incorrect" : errorMessage(e));
+      setMsg(
+        e instanceof ApiError && e.status === 401
+          ? "Email or password is incorrect"
+          : errorMessage(e),
+      );
     }
   };
 
@@ -36,13 +47,26 @@ export default function LoginPage() {
     <NarrowPage className="max-w-md">
       <div className="rounded-2xl border border-border bg-surface p-6 sm:p-8">
         <h1 className="text-2xl font-bold">Log in</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Manage your events and track ticket sales.</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Manage your events and track ticket sales.
+        </p>
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-6 space-y-4">
           <Field id="email" label="Email" error={errors.email?.message}>
-            <Input {...aria("email", errors.email?.message)} type="email" autoComplete="email" inputMode="email" {...register("email")} />
+            <Input
+              {...aria("email", errors.email?.message)}
+              type="email"
+              autoComplete="email"
+              inputMode="email"
+              {...register("email")}
+            />
           </Field>
           <Field id="password" label="Password" error={errors.password?.message}>
-            <Input {...aria("password", errors.password?.message)} type="password" autoComplete="current-password" {...register("password")} />
+            <Input
+              {...aria("password", errors.password?.message)}
+              type="password"
+              autoComplete="current-password"
+              {...register("password")}
+            />
           </Field>
           <FormAlert message={msg} />
           <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
