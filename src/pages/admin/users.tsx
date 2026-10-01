@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Search, Users } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -30,6 +31,7 @@ const ROLE_VARIANT = { admin: "solid", organizer: "default", sponsor: "info" } a
 
 export default function UsersPage() {
   useTitle("Users");
+  const navigate = useNavigate();
   const q = useQuery({ queryKey: qk.users, queryFn: listUsers });
   const [search, setSearch] = useState("");
   const [role, setRole] = useState("all");
@@ -100,9 +102,21 @@ export default function UsersPage() {
               </TableHeader>
               <TableBody>
                 {paged.slice.map((u) => (
-                  <TableRow key={u.id}>
+                  <TableRow
+                    key={u.id}
+                    className="cursor-pointer"
+                    onClick={(e) => {
+                      if (!(e.target as HTMLElement).closest("a"))
+                        navigate(`/console/users/${u.id}`);
+                    }}
+                  >
                     <TableCell className="pl-5 font-medium">
-                      {u.name}
+                      <Link
+                        to={`/console/users/${u.id}`}
+                        className="hover:text-brand hover:underline"
+                      >
+                        {u.name}
+                      </Link>
                       {u.organization && (
                         <span className="block text-xs font-normal text-muted-foreground">
                           {u.organization}

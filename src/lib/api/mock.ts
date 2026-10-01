@@ -456,6 +456,81 @@ export async function mockTransport(
       return fail(403, { detail: "You do not have permission to perform this action." });
     return ok({ error: false, message: "All Users List Data", data: d.users.map(publicUser) });
   }
+  if (seg[0] === "users" && seg[2] === "overview" && method === "GET") {
+    if (!me) return needAuth();
+    if (me.user_type !== "admin")
+      return fail(403, { detail: "You do not have permission to perform this action." });
+    const u = d.users.find((x) => x.id === Number(seg[1]));
+    if (!u) return fail(404, { detail: "Not found." });
+    const today = new Date().toISOString().slice(0, 10);
+    const evs = d.events.filter((e) => e.organizer_id === u.id);
+    const tierIds = new Set(
+      d.tiers.filter((t) => evs.some((e) => e.id === t.event)).map((t) => t.id),
+    );
+    const tix = d.tickets.filter((t) => tierIds.has(t.ticket_type));
+    const paid = d.orders.filter((o) => o.status === "paid" && tierIds.has(o.ticket_type));
+    const priceOf = (id) => Number(d.tiers.find((t) => t.id === id)?.price || 0);
+    const eventOf = (tierId) =>
+      d.events.find((e) => e.id === d.tiers.find((t) => t.id === tierId)?.event);
+    const rows = [...evs]
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .map((e) => {
+        const ids = d.tiers.filter((t) => t.event === e.id).map((t) => t.id);
+        const et = tix.filter((t) => ids.includes(t.ticket_type));
+        return {
+          id: e.id,
+          title: e.title,
+          category: e.category,
+          venue: e.venue,
+          date: e.date,
+          time: e.time,
+          is_open: e.is_open,
+          is_feature: e.is_feature,
+          tickets_sold: et.length,
+          revenue: et.reduce((s2, t) => s2 + priceOf(t.ticket_type), 0),
+        };
+      });
+    const sponsored = d.events
+      .filter((e) => (e.sponsors || []).includes(u.id))
+      .map((e) => ({
+        id: e.id,
+        title: e.title,
+        date: e.date,
+        venue: e.venue,
+        organizer: d.users.find((x) => x.id === e.organizer_id)?.name || "",
+      }));
+    const { password: _pw, ...profile } = u;
+    return ok({
+      error: false,
+      message: "User Overview",
+      data: {
+        user: { ...profile, last_login: null, is_active: true },
+        stats: {
+          events: evs.length,
+          upcoming_events: evs.filter((e) => e.date >= today).length,
+          tickets_sold: tix.length,
+          orders_paid: paid.length,
+          revenue: tix.reduce((s2, t) => s2 + priceOf(t.ticket_type), 0),
+          sponsored_events: sponsored.length,
+        },
+        events: rows,
+        sponsored_events: sponsored,
+        recent_sales: [...paid]
+          .sort((a, b) => String(b.paid_at).localeCompare(String(a.paid_at)))
+          .slice(0, 10)
+          .map((o) => ({
+            reference: o.reference,
+            event_id: eventOf(o.ticket_type)?.id,
+            event_title: eventOf(o.ticket_type)?.title,
+            tier: d.tiers.find((t) => t.id === o.ticket_type)?.name,
+            quantity: o.quantity,
+            total_amount: priceOf(o.ticket_type) * o.quantity,
+            buyer_name: o.buyer_name,
+            paid_at: o.paid_at,
+          })),
+      },
+    });
+  }
   if (r === "userinfo") {
     if (!me) return needAuth();
     if (method === "GET") return ok(publicUser(me));

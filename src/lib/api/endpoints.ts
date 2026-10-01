@@ -12,6 +12,7 @@ import type {
   Ticket,
   TicketDetail,
   User,
+  UserOverview,
 } from "./types";
 
 interface Env<T> {
@@ -130,3 +131,10 @@ export const adminSignup = (body: {
   phone: string;
   password: string;
 }) => request<{ message: string }>("/admin-signup/", { method: "POST", json: body });
+
+export const getUserOverview = async (id: number | string) =>
+  (
+    await request<Env<UserOverview>>(`/users/${encodeURIComponent(String(id))}/overview/`, {
+      auth: true,
+    })
+  ).data;

@@ -12,6 +12,7 @@ export const qk = {
   ticket: (num: string) => ["ticket", num] as const,
   dashboard: ["dashboard"] as const,
   users: ["users"] as const,
+  userOverview: (id: string) => ["users", id, "overview"] as const,
   me: ["me"] as const,
 };
 

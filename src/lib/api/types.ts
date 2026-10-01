@@ -164,3 +164,39 @@ export interface IntegrationTestResult {
   ok: boolean;
   message: string;
 }
+
+// ---- admin user detail ----
+export interface UserOverview {
+  user: User & { is_active: boolean; last_login: string | null };
+  stats: {
+    events: number;
+    upcoming_events: number;
+    tickets_sold: number;
+    orders_paid: number;
+    revenue: Money;
+    sponsored_events: number;
+  };
+  events: {
+    id: number;
+    title: string;
+    category: string;
+    venue: string;
+    date: string;
+    time: string;
+    is_open: boolean;
+    is_feature: boolean;
+    tickets_sold: number;
+    revenue: Money;
+  }[];
+  sponsored_events: { id: number; title: string; date: string; venue: string; organizer: string }[];
+  recent_sales: {
+    reference: string;
+    event_id: number;
+    event_title: string;
+    tier: string;
+    quantity: number;
+    total_amount: Money;
+    buyer_name: string;
+    paid_at: string | null;
+  }[];
+}
