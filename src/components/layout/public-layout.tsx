@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, NavLink, Outlet } from "react-router-dom";
-import { Menu, Search, Ticket } from "lucide-react";
+import { Megaphone, Menu, Search, Ticket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Logo, ThemeToggle } from "./brand";
@@ -27,7 +27,7 @@ function AccountLink({ onNavigate, block }: { onNavigate?: () => void; block?: b
   return (
     <Button asChild variant={block ? "default" : "outline"} className={block ? "w-full" : ""}>
       <Link to="/login" onClick={onNavigate}>
-        Organizer sign in
+        Sign in
       </Link>
     </Button>
   );
@@ -57,6 +57,9 @@ export function PublicLayout() {
             </NavLink>
             <NavLink to="/find-ticket" className={navCls}>
               Find my ticket
+            </NavLink>
+            <NavLink to="/register" className={navCls}>
+              For organizers
             </NavLink>
           </nav>
           <div className="ml-auto hidden items-center gap-2 md:flex">
@@ -88,6 +91,11 @@ export function PublicLayout() {
                       <Ticket className="size-4" /> Find my ticket
                     </span>
                   </NavLink>
+                  <NavLink to="/register" className={navCls} onClick={() => setOpen(false)}>
+                    <span className="flex items-center gap-2 py-1 text-base">
+                      <Megaphone className="size-4" /> For organizers
+                    </span>
+                  </NavLink>
                 </nav>
                 <div className="mt-6 space-y-3">
                   <AccountLink block onNavigate={() => setOpen(false)} />
@@ -104,37 +112,57 @@ export function PublicLayout() {
       <main id="main" className="flex-1">
         <Outlet />
       </main>
-      <footer className="no-print mt-16 border-t border-border bg-surface">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:grid-cols-3 sm:px-6 lg:px-8">
+      <footer className="no-print mt-20 border-t border-border bg-surface">
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-[1.4fr_1fr_1fr_1fr] lg:px-8">
           <div>
             <Logo />
             <p className="mt-3 max-w-xs text-sm text-muted-foreground">
-              Discover events across Kenya and pay with M-Pesa. No account needed.
+              Event tickets for Kenya. Pay with M-Pesa, get your tickets by SMS and email. No
+              account, no password.
             </p>
           </div>
-          <nav aria-label="Footer" className="flex flex-col gap-2 text-sm">
-            <Link to="/events" className="text-muted-foreground hover:text-foreground">
-              Browse events
-            </Link>
-            <Link to="/find-ticket" className="text-muted-foreground hover:text-foreground">
-              Find my ticket
-            </Link>
-            <Link to="/login" className="text-muted-foreground hover:text-foreground">
-              Organizer login
-            </Link>
-          </nav>
-          <div className="text-sm">
-            <p className="font-medium">Need help?</p>
-            <a href={`mailto:${SUPPORT_CONTACT}`} className="text-brand hover:underline">
+          <FooterGroup title="Buyers">
+            <FooterLink to="/events">Browse events</FooterLink>
+            <FooterLink to="/find-ticket">Find my ticket</FooterLink>
+          </FooterGroup>
+          <FooterGroup title="Organizers">
+            <FooterLink to="/register">Sell tickets</FooterLink>
+            <FooterLink to="/login">Organizer sign in</FooterLink>
+          </FooterGroup>
+          <FooterGroup title="Support">
+            <a
+              href={`mailto:${SUPPORT_CONTACT}`}
+              className="text-muted-foreground hover:text-foreground"
+            >
               {SUPPORT_CONTACT}
             </a>
-          </div>
+          </FooterGroup>
         </div>
-        <div className="border-t border-border py-4 text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} HostMe
+        <div className="border-t border-border">
+          <div className="mx-auto flex max-w-7xl flex-wrap justify-between gap-2 px-4 py-4 text-xs text-muted-foreground sm:px-6 lg:px-8">
+            <span>© {new Date().getFullYear()} HostMe</span>
+            <span>Prices in KES · Times in East Africa Time</span>
+          </div>
         </div>
       </footer>
     </div>
+  );
+}
+
+function FooterGroup({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <nav aria-label={title} className="flex flex-col gap-2.5 text-sm">
+      <p className="font-semibold text-foreground">{title}</p>
+      {children}
+    </nav>
+  );
+}
+
+function FooterLink({ to, children }: { to: string; children: React.ReactNode }) {
+  return (
+    <Link to={to} className="text-muted-foreground hover:text-foreground">
+      {children}
+    </Link>
   );
 }
 

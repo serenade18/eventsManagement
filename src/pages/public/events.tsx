@@ -23,6 +23,7 @@ import {
   type PriceFilter,
 } from "@/lib/events";
 import { useTitle } from "@/hooks/use-title";
+import { cn } from "@/lib/utils";
 
 const WHEN: { value: DateFilter; label: string }[] = [
   { value: "upcoming", label: "Upcoming" },
@@ -36,7 +37,6 @@ const PRICE: { value: PriceFilter; label: string }[] = [
   { value: "free", label: "Free" },
   { value: "paid", label: "Paid" },
 ];
-const ALL = "__all";
 
 export default function EventsPage() {
   useTitle("Browse events");
@@ -63,6 +63,9 @@ export default function EventsPage() {
   const q = useQuery(publicEventsQuery());
   const cats = useMemo(() => (q.data ? categories(q.data) : []), [q.data]);
   const results = q.data ? filterEvents(q.data, f) : [];
+  // Chip counts reflect every other active filter, so a chip never promises results it can't show.
+  const pool = q.data ? filterEvents(q.data, { ...f, category: "" }) : [];
+  const countFor = (c: string) => pool.filter((e) => e.category === c).length;
 
   return (
     <WidePage>
@@ -71,8 +74,8 @@ export default function EventsPage() {
         description="Concerts, festivals, talks and more. Find something to go to."
       />
 
-      <div className="mb-6 grid gap-3 rounded-xl border border-border bg-surface p-3 sm:grid-cols-2 lg:grid-cols-[1fr_200px_180px_160px]">
-        <div className="relative sm:col-span-2 lg:col-span-1">
+      <div className="mb-4 grid gap-3 sm:grid-cols-[1fr_180px_160px]">
+        <div className="relative">
           <label htmlFor="search" className="sr-only">
             Search events
           </label>
@@ -89,15 +92,6 @@ export default function EventsPage() {
             onChange={(e) => set("q", e.target.value)}
           />
         </div>
-        <FilterSelect
-          label="Category"
-          value={f.category || ALL}
-          onChange={(v) => set("category", v === ALL ? "" : v)}
-          options={[
-            { value: ALL, label: "All categories" },
-            ...cats.map((c) => ({ value: c, label: c })),
-          ]}
-        />
         <FilterSelect label="Date" value={f.when} onChange={(v) => set("when", v)} options={WHEN} />
         <FilterSelect
           label="Price"
@@ -106,6 +100,30 @@ export default function EventsPage() {
           options={PRICE}
         />
       </div>
+
+      {cats.length > 0 && (
+        <div
+          role="radiogroup"
+          aria-label="Category"
+          className="-mx-4 mb-6 flex snap-x gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0"
+        >
+          <CategoryChip
+            label="All"
+            count={pool.length}
+            active={!f.category}
+            onClick={() => set("category", "")}
+          />
+          {cats.map((c) => (
+            <CategoryChip
+              key={c}
+              label={c}
+              count={countFor(c)}
+              active={f.category === c}
+              onClick={() => set("category", f.category === c ? "" : c)}
+            />
+          ))}
+        </div>
+      )}
 
       <div className="mb-4 flex min-h-9 items-center justify-between gap-2" aria-live="polite">
         <p className="text-sm text-muted-foreground">
@@ -151,6 +169,36 @@ export default function EventsPage() {
         />
       )}
     </WidePage>
+  );
+}
+
+function CategoryChip({
+  label,
+  count,
+  active,
+  onClick,
+}: {
+  label: string;
+  count: number;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={active}
+      onClick={onClick}
+      className={cn(
+        "flex h-10 shrink-0 snap-start items-center gap-1.5 rounded-full border px-4 text-sm font-medium transition-colors",
+        active
+          ? "border-foreground bg-foreground text-background"
+          : "border-border bg-surface text-foreground hover:border-input",
+      )}
+    >
+      {label}
+      <span className="text-xs tabular opacity-60">{count}</span>
+    </button>
   );
 }
 

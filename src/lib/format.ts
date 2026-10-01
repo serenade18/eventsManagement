@@ -165,3 +165,23 @@ export function displayTicketNumber(n: string) {
 export function eventStartMs(date: string, time: string) {
   return new Date(`${date}T${(time || "00:00").slice(0, 5)}:00+03:00`).getTime();
 }
+
+/** "Free", "KES 1,500", or "KES 1,000 – 2,500" across an event's tiers. */
+export function priceRange(e: Event) {
+  const prices = e.ticket_types.map((t) => Number(t.price));
+  if (!prices.length || e.is_free) return "Free";
+  const lo = Math.min(...prices);
+  const hi = Math.max(...prices);
+  if (hi === 0) return "Free";
+  if (lo === hi) return money(lo);
+  return lo === 0
+    ? `Free – ${money(hi)}`
+    : `${money(lo)} – ${new Intl.NumberFormat("en-KE").format(hi)}`;
+}
+
+export function weekday(date: string) {
+  const [y = 1970, m = 1, d = 1] = date.split("-").map(Number);
+  return new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", weekday: "short" }).format(
+    new Date(Date.UTC(y, m - 1, d)),
+  );
+}

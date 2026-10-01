@@ -102,6 +102,9 @@ function CheckoutForm({
   const navigate = useNavigate();
   const qc = useQueryClient();
   const prefill = getPrefill(tier.id);
+  const [params] = useSearchParams();
+  const qtyParam = Number(params.get("qty"));
+  const initialQty = Number.isInteger(qtyParam) && qtyParam >= 1 && qtyParam <= 10 ? qtyParam : 1;
   const submitted = useRef(false);
   const [formError, setFormError] = useState<string | null>(null);
   const {
@@ -114,7 +117,7 @@ function CheckoutForm({
   } = useForm<PurchaseValues>({
     resolver: zodResolver(purchaseSchema),
     defaultValues: {
-      quantity: prefill?.quantity ?? 1,
+      quantity: params.has("qty") ? initialQty : (prefill?.quantity ?? 1),
       buyer_name: prefill?.buyer_name ?? "",
       buyer_phone: prefill?.buyer_phone ?? "",
       buyer_email: prefill?.buyer_email ?? "",
