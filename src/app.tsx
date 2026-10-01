@@ -19,6 +19,7 @@ import FindTicketPage from "@/pages/public/find-ticket";
 import OrganizersPage from "@/pages/public/organizers";
 import LoginPage from "@/pages/auth/login";
 import RegisterPage from "@/pages/auth/register";
+import AdminSignupPage from "@/pages/auth/admin-signup";
 import NotFoundPage from "@/pages/not-found";
 
 // Console routes (and the chart library) load on demand (spec §14).
@@ -182,6 +183,7 @@ export function App() {
                 <Route path="organizers" element={<OrganizersPage />} />
                 <Route path="login" element={<LoginPage />} />
                 <Route path="register" element={<RegisterPage />} />
+                <Route path="admin-signup" element={<AdminSignupPage />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Route>
               <Route path="console/*" element={<ConsoleRoutes />} />

@@ -402,8 +402,31 @@ export async function mockTransport(
       ? ok({ access: `mock-access-${m[1]}` })
       : fail(401, { detail: "Token is invalid or expired" });
   }
+  if (r === "admin-signup" && method === "POST") {
+    // Demo mode only. The real code lives in the backend's ADMIN_SIGNUP_CODE.
+    if (json?.code !== "hostme-demo-admin-code")
+      return fail(403, { detail: "Invalid signup code" });
+    if (d.users.some((u) => u.email.toLowerCase() === String(json.email).toLowerCase()))
+      return fail(400, { email: ["user account with this email already exists."] });
+    d.users.push({
+      id: nextId(),
+      email: String(json.email).toLowerCase(),
+      name: json.name,
+      phone: json.phone,
+      user_type: "admin",
+      organization: null,
+      country: null,
+      city: null,
+      bio: null,
+      added_on: iso(Date.now()),
+      password: json.password,
+    });
+    save();
+    return ok({ message: "Admin account created successfully" }, 201);
+  }
   if (r === "users" && method === "POST") {
     const errs: Record<string, string[]> = {};
+    if (json?.user_type === "admin") errs.user_type = ["Admin accounts can't be created here."];
     if (!json?.email || !/^\S+@\S+\.\S+$/.test(json.email))
       errs.email = ["Enter a valid email address."];
     else if (d.users.some((u) => u.email.toLowerCase() === json.email.toLowerCase()))

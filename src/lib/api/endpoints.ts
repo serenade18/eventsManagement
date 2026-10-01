@@ -121,3 +121,12 @@ export const testIntegration = async (provider: IntegrationProvider) =>
       auth: true,
     })
   ).data;
+
+/** Code-protected admin signup (unlinked page). 404 when the backend has it turned off. */
+export const adminSignup = (body: {
+  code: string;
+  email: string;
+  name: string;
+  phone: string;
+  password: string;
+}) => request<{ message: string }>("/admin-signup/", { method: "POST", json: body });

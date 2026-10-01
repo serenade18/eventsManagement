@@ -151,3 +151,23 @@ export const lookupSchema = z.object({
       "That doesn't look right: it's 12 letters and numbers, sometimes followed by -2, -3…",
     ),
 });
+
+export const adminSignupSchema = z
+  .object({
+    code: z.string().trim().min(1, "Enter the signup code"),
+    name: z.string().trim().min(1, "Enter your name").max(255),
+    email: z
+      .string()
+      .trim()
+      .min(1, "Enter your email")
+      .email("Enter a valid email address")
+      .max(255),
+    phone,
+    password: z
+      .string()
+      .min(10, "Use at least 10 characters")
+      .refine((v) => !/^\d+$/.test(v), "Password can't be only numbers"),
+    confirm: z.string(),
+  })
+  .refine((v) => v.password === v.confirm, { path: ["confirm"], message: "Passwords don't match" });
+export type AdminSignupValues = z.infer<typeof adminSignupSchema>;
