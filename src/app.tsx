@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,6 +7,7 @@ import { AuthProvider } from "@/lib/auth";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { ConsoleLayout, PageSkeleton, RequireRole } from "@/components/layout/console-layout";
 import { ScrollToTop } from "@/components/layout/scroll-to-top";
+import { ErrorBoundary } from "@/components/common/error-boundary";
 
 import HomePage from "@/pages/public/home";
 import EventsPage from "@/pages/public/events";
@@ -53,7 +54,17 @@ const queryClient = new QueryClient({
 const ORG = ["organizer", "admin"] as const;
 
 function Lazy({ children }: { children: React.ReactNode }) {
-  return <Suspense fallback={<PageSkeleton />}>{children}</Suspense>;
+  const { pathname } = useLocation();
+  return (
+    <ErrorBoundary resetKey={pathname}>
+      <Suspense fallback={<PageSkeleton />}>{children}</Suspense>
+    </ErrorBoundary>
+  );
+}
+
+function RoutedBoundary({ children }: { children: React.ReactNode }) {
+  const { pathname } = useLocation();
+  return <ErrorBoundary resetKey={pathname}>{children}</ErrorBoundary>;
 }
 
 function ConsoleRoutes() {
@@ -169,25 +180,27 @@ export function App() {
         <AuthProvider>
           <TooltipProvider>
             <ScrollToTop />
-            <Routes>
-              <Route element={<PublicLayout />}>
-                <Route index element={<HomePage />} />
-                <Route path="events" element={<EventsPage />} />
-                <Route path="events/:id" element={<EventDetailPage />} />
-                <Route path="events/:id/checkout" element={<CheckoutPage />} />
-                <Route path="orders/:reference" element={<OrderPage />} />
-                <Route path="orders/:reference/pay" element={<PaymentPage />} />
-                <Route path="tickets/:ticketNumber" element={<TicketPage />} />
-                <Route path="tickets/:ticketNumber/download" element={<TicketPage download />} />
-                <Route path="find-ticket" element={<FindTicketPage />} />
-                <Route path="organizers" element={<OrganizersPage />} />
-                <Route path="login" element={<LoginPage />} />
-                <Route path="register" element={<RegisterPage />} />
-                <Route path="admin-signup" element={<AdminSignupPage />} />
-                <Route path="*" element={<NotFoundPage />} />
-              </Route>
-              <Route path="console/*" element={<ConsoleRoutes />} />
-            </Routes>
+            <RoutedBoundary>
+              <Routes>
+                <Route element={<PublicLayout />}>
+                  <Route index element={<HomePage />} />
+                  <Route path="events" element={<EventsPage />} />
+                  <Route path="events/:id" element={<EventDetailPage />} />
+                  <Route path="events/:id/checkout" element={<CheckoutPage />} />
+                  <Route path="orders/:reference" element={<OrderPage />} />
+                  <Route path="orders/:reference/pay" element={<PaymentPage />} />
+                  <Route path="tickets/:ticketNumber" element={<TicketPage />} />
+                  <Route path="tickets/:ticketNumber/download" element={<TicketPage download />} />
+                  <Route path="find-ticket" element={<FindTicketPage />} />
+                  <Route path="organizers" element={<OrganizersPage />} />
+                  <Route path="login" element={<LoginPage />} />
+                  <Route path="register" element={<RegisterPage />} />
+                  <Route path="admin-signup" element={<AdminSignupPage />} />
+                  <Route path="*" element={<NotFoundPage />} />
+                </Route>
+                <Route path="console/*" element={<ConsoleRoutes />} />
+              </Routes>
+            </RoutedBoundary>
             <Toaster position="top-center" richColors closeButton />
           </TooltipProvider>
         </AuthProvider>

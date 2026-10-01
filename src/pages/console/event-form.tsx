@@ -22,7 +22,7 @@ import { ApiError, errorMessage } from "@/lib/api/client";
 import { createEvent, listMyEvents, updateEvent } from "@/lib/api/endpoints";
 import { myEventQuery, qk, ticketsQuery } from "@/lib/api/queries";
 import type { Event } from "@/lib/api/types";
-import { useAuth } from "@/lib/auth";
+import { eventsLabel, useAuth } from "@/lib/auth";
 import { fromNairobiInput, money, todayNairobi, toNairobiInput } from "@/lib/format";
 import { eventSchema, POSTER_TYPES, type EventValues, type TierValues } from "@/lib/schemas";
 import { useTitle } from "@/hooks/use-title";
@@ -206,7 +206,8 @@ function EventForm({ event, hasSales }: { event: Event | undefined; hasSales: bo
         to={event ? `/console/events/${event.id}` : "/console/events"}
         className="mb-3 inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft className="size-4" aria-hidden /> {event ? "Back to event" : "My events"}
+        <ArrowLeft className="size-4" aria-hidden />{" "}
+        {event ? "Back to event" : eventsLabel(user?.user_type)}
       </Link>
       <PageHeader title={event ? "Edit event" : "Create event"} />
       <form

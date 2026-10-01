@@ -30,7 +30,7 @@ import { Poster } from "@/components/events/poster";
 import { deleteEvent } from "@/lib/api/endpoints";
 import { myEventsQuery, qk } from "@/lib/api/queries";
 import type { Event } from "@/lib/api/types";
-import { useAuth } from "@/lib/auth";
+import { eventsLabel, useAuth } from "@/lib/auth";
 import { bySoonest } from "@/lib/events";
 import { eventWhen, isPast } from "@/lib/format";
 import { useTitle } from "@/hooks/use-title";
@@ -38,7 +38,7 @@ import { useTitle } from "@/hooks/use-title";
 export default function MyEventsPage() {
   const { user } = useAuth();
   const admin = user?.user_type === "admin";
-  useTitle(admin ? "All events" : "My events");
+  useTitle(eventsLabel(user?.user_type));
   const qc = useQueryClient();
   const q = useQuery(myEventsQuery());
   const [tab, setTab] = useState<"upcoming" | "past">("upcoming");
@@ -57,7 +57,7 @@ export default function MyEventsPage() {
   return (
     <>
       <PageHeader
-        title={admin ? "All events" : "My events"}
+        title={eventsLabel(user?.user_type)}
         description={admin ? "Every event on HostMe." : "Create, edit and track your events."}
         actions={
           <Button asChild>

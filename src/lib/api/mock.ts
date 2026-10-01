@@ -712,6 +712,7 @@ export async function mockTransport(
     return ok({
       error: false,
       message: "Dashboard API",
+      scope: me.user_type === "admin" ? "platform" : "organizer",
       overview: {
         ticketsSold: tix.length,
         revenue,
@@ -727,14 +728,15 @@ export async function mockTransport(
           const ids = d.tiers.filter((t) => t.event === e.id).map((t) => t.id);
           const et = tix.filter((t) => ids.includes(t.ticket_type));
           return {
+            id: e.id,
             name: e.title,
             tickets: et.length,
             revenue: et.reduce((s, t) => s + price(t.ticket_type), 0),
-            status: e.date >= today ? "Active" : "Ended",
+            status: e.date < today ? "Ended" : e.is_open ? "Active" : "Closed",
           };
         }),
       monthlyData: [...months.values()],
-      demographics: [{ ageGroup: "18-25", percentage: 35, count: 857 }],
+      demographics: [],
     });
   }
 

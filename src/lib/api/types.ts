@@ -114,7 +114,10 @@ export interface Dashboard {
     total_events: number;
     active_events: number;
   };
-  topEvents: { name: string; tickets: number; revenue: number; status: string }[];
+  /** "platform" for admins (every event), "organizer" otherwise. */
+  scope?: "platform" | "organizer";
+  /** id is present from the current backend; older responses only had the name. */
+  topEvents: { id?: number; name: string; tickets: number; revenue: number; status: string }[];
   monthlyData: { month: string; revenue: number; tickets: number }[];
   demographics: { ageGroup: string; percentage: number; count: number }[];
 }

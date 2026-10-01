@@ -29,9 +29,11 @@ import { Poster } from "@/components/events/poster";
 import { Pager, usePaged } from "@/components/console/pager";
 import { myEventQuery, ticketsQuery } from "@/lib/api/queries";
 import { dateTime, displayTicketNumber, downloadFile, eventWhen, money, toCsv } from "@/lib/format";
+import { eventsLabel, useAuth } from "@/lib/auth";
 import { useTitle } from "@/hooks/use-title";
 
 export default function EventOverviewPage() {
+  const { user } = useAuth();
   const { id = "" } = useParams();
   const ev = useQuery(myEventQuery(id));
   const tix = useQuery(ticketsQuery());
@@ -93,7 +95,7 @@ export default function EventOverviewPage() {
         to="/console/events"
         className="inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft className="size-4" aria-hidden /> My events
+        <ArrowLeft className="size-4" aria-hidden /> {eventsLabel(user?.user_type)}
       </Link>
 
       <header className="flex flex-col gap-5 rounded-xl border border-border bg-surface p-5 sm:flex-row">

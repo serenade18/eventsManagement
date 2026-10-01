@@ -37,6 +37,12 @@ import { money } from "@/lib/format";
 import { useTitle } from "@/hooks/use-title";
 
 const num = new Intl.NumberFormat("en-KE");
+const STATUS_VARIANT: Record<string, "success" | "warning" | "info" | "secondary"> = {
+  Active: "success",
+  Closed: "warning",
+  Upcoming: "info",
+  Ended: "secondary",
+};
 
 export default function DashboardPage() {
   useTitle("Dashboard");
@@ -48,6 +54,11 @@ export default function DashboardPage() {
       <PageHeader
         eyebrow={`Welcome back, ${user?.name.split(" ")[0] ?? ""}`}
         title="Dashboard"
+        description={
+          user?.user_type === "admin"
+            ? "Sales across every organizer on HostMe."
+            : "Sales across your events."
+        }
         actions={
           <>
             <Button asChild variant="outline">
@@ -169,23 +180,24 @@ function DashboardBody({ d }: { d: Dashboard }) {
                 <TableBody>
                   {d.topEvents.map((e, i) => (
                     <TableRow key={`${e.name}-${i}`}>
-                      <TableCell className="pl-5 font-medium">{e.name}</TableCell>
+                      <TableCell className="pl-5 font-medium">
+                        {e.id ? (
+                          <Link
+                            to={`/console/events/${e.id}`}
+                            className="hover:text-brand hover:underline"
+                          >
+                            {e.name}
+                          </Link>
+                        ) : (
+                          e.name
+                        )}
+                      </TableCell>
                       <TableCell className="text-right tabular">{num.format(e.tickets)}</TableCell>
                       <TableCell className="text-right tabular">
                         {money(e.revenue, false)}
                       </TableCell>
                       <TableCell className="pr-5">
-                        <Badge
-                          variant={
-                            e.status === "Active"
-                              ? "success"
-                              : e.status === "Upcoming"
-                                ? "info"
-                                : "secondary"
-                          }
-                        >
-                          {e.status}
-                        </Badge>
+                        <Badge variant={STATUS_VARIANT[e.status] ?? "secondary"}>{e.status}</Badge>
                       </TableCell>
                     </TableRow>
                   ))}

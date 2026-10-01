@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Logo, ThemeToggle } from "./brand";
-import { homeFor, useAuth } from "@/lib/auth";
+import { eventsLabel, homeFor, useAuth } from "@/lib/auth";
 import type { UserType } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
@@ -71,7 +71,7 @@ function SideNav({ onNavigate }: { onNavigate?: () => void }) {
             }
           >
             <Icon className="size-[18px]" aria-hidden />
-            {label}
+            {to === "/console/events" ? eventsLabel(user?.user_type) : label}
           </NavLink>
         ))}
         <Link

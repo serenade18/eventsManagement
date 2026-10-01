@@ -35,6 +35,11 @@ export function safeNext(next: string | null) {
   return next && next.startsWith("/") && !next.startsWith("//") ? next : null;
 }
 
+/** Admins manage every event on the platform; organizers manage their own. */
+export function eventsLabel(t: UserType | undefined) {
+  return t === "admin" ? "Events" : "My events";
+}
+
 export function canManageEvents(t: UserType | undefined) {
   return t === "organizer" || t === "admin";
 }
