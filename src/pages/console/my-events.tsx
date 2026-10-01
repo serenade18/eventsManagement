@@ -62,7 +62,7 @@ export default function MyEventsPage() {
     <>
       <PageHeader
         title={eventsLabel(user?.user_type)}
-        description={admin ? "Every event on HostMe." : "Create, edit and track your events."}
+        description={admin ? "Every event on MyEvents." : "Create, edit and track your events."}
         actions={
           <Button asChild>
             <Link to="/console/events/new">

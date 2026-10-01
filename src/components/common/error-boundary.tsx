@@ -69,7 +69,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode; resetKey?: s
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           {chunk
-            ? "A newer version of HostMe is available, or the connection dropped while loading."
+            ? "A newer version of MyEvents is available, or the connection dropped while loading."
             : "Try again. If it keeps happening, let us know what you were doing."}
         </p>
         <Button className="mt-6" onClick={() => window.location.reload()}>

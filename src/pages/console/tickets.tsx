@@ -61,7 +61,7 @@ export default function TicketsPage() {
 
   const exportCsv = () =>
     downloadFile(
-      "hostme-tickets.csv",
+      "myevents-tickets.csv",
       toCsv([
         ["Ticket number", "Event", "Tier", "Buyer", "Phone", "Email", "Purchase date"],
         ...rows.map((t) => [

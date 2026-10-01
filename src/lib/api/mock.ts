@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck -- loosely typed in-browser mock of the backend
-// In-browser mock of the HostMe backend, used when no VITE_API_BASE_URL is set
+// In-browser mock of the MyEvents backend, used when no VITE_API_BASE_URL is set
 // (or VITE_USE_MOCKS=true). Mirrors the response shapes from the spec.
 import QRCode from "qrcode";
 import jazz from "@/assets/poster-jazz.jpg";
@@ -45,7 +45,7 @@ interface DB {
   seq: number;
 }
 
-const KEY = "hostme.mockdb.v1";
+const KEY = "hostme.mockdb.v2";
 let db: DB | null = null;
 
 const iso = (ms: number) => new Date(ms).toISOString();
@@ -56,11 +56,11 @@ function seed(): DB {
   const users: MockUser[] = [
     {
       id: 1,
-      email: "admin@hostme.co.ke",
-      name: "HostMe Admin",
+      email: "admin@myevents.africa",
+      name: "MyEvents Admin",
       phone: "0700000001",
       user_type: "admin",
-      organization: "HostMe",
+      organization: "MyEvents",
       country: "Kenya",
       city: "Nairobi",
       bio: null,
@@ -69,7 +69,7 @@ function seed(): DB {
     },
     {
       id: 2,
-      email: "org@hostme.co.ke",
+      email: "org@myevents.africa",
       name: "Sauti Live",
       phone: "0712345678",
       user_type: "organizer",
@@ -82,7 +82,7 @@ function seed(): DB {
     },
     {
       id: 3,
-      email: "sponsor@hostme.co.ke",
+      email: "sponsor@myevents.africa",
       name: "Safari Brews",
       phone: "0722000111",
       user_type: "sponsor",
@@ -404,7 +404,7 @@ export async function mockTransport(
   }
   if (r === "admin-signup" && method === "POST") {
     // Demo mode only. The real code lives in the backend's ADMIN_SIGNUP_CODE.
-    if (json?.code !== "hostme-demo-admin-code")
+    if (json?.code !== "myevents-demo-admin-code")
       return fail(403, { detail: "Invalid signup code" });
     if (d.users.some((u) => u.email.toLowerCase() === String(json.email).toLowerCase()))
       return fail(400, { email: ["user account with this email already exists."] });
@@ -1011,12 +1011,12 @@ function seedIntegrations() {
   set("mpesa", "consumer_secret", "7mKd", true);
   set("mpesa", "shortcode", "174379");
   set("mpesa", "passkey", "c919", true);
-  set("mpesa", "callback_url", "https://api.hostme.co.ke/api/mpesa/callback/");
+  set("mpesa", "callback_url", "https://api.myevents.africa/api/mpesa/callback/");
   all.mpesa.enabled = true;
   set("sms", "api_key", "3f2a", true);
   set("sms", "access_key", "b81e", true);
   set("sms", "client_id", "hostme");
-  set("sms", "sender_id", "HostMe");
+  set("sms", "sender_id", "MyEvents");
   all.sms.enabled = true;
   return all;
 }

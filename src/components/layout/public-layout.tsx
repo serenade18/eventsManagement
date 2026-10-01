@@ -138,7 +138,7 @@ export function PublicLayout() {
         </div>
         <div className="border-t border-border">
           <div className="mx-auto flex max-w-7xl flex-wrap justify-between gap-2 px-4 py-4 text-xs text-muted-foreground sm:px-6 lg:px-8">
-            <span>© {new Date().getFullYear()} HostMe</span>
+            <span>© {new Date().getFullYear()} MyEvents</span>
             <span>Prices in KES · Times in East Africa Time</span>
           </div>
         </div>

@@ -20,12 +20,12 @@ export default function IntegrationsPage() {
     <div className="max-w-4xl">
       <PageHeader
         title="Integrations"
-        description="Payment and SMS provider credentials used by HostMe."
+        description="Payment and SMS provider credentials used by MyEvents."
       />
       <div className="mb-6 flex gap-3 rounded-xl border border-info/30 bg-info-soft p-4 text-sm text-info">
         <ShieldCheck className="mt-0.5 size-5 shrink-0" aria-hidden />
         <p>
-          Keys are sent straight to the HostMe server and stored there. Once saved, a secret is
+          Keys are sent straight to the MyEvents server and stored there. Once saved, a secret is
           never shown again: only its last 4 characters. Every change needs your password and is
           recorded with your name.
         </p>

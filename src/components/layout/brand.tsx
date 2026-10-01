@@ -18,7 +18,7 @@ export function Logo({
     <Link
       to={to}
       className={cn("flex items-center gap-2 rounded-md font-bold", className)}
-      aria-label="HostMe home"
+      aria-label="MyEvents home"
     >
       <span
         className="grid size-8 place-items-center rounded-lg bg-brand text-primary-foreground"
@@ -26,7 +26,7 @@ export function Logo({
       >
         <svg viewBox="0 0 32 32" className="size-5">
           <path
-            d="M10 8v16M22 8v16M10 16h12"
+            d="M9 24V8l7 9 7-9v16"
             stroke="currentColor"
             strokeWidth="3.4"
             strokeLinecap="round"
@@ -34,7 +34,7 @@ export function Logo({
           />
         </svg>
       </span>
-      {!compact && <span className="text-lg tracking-tight">HostMe</span>}
+      {!compact && <span className="text-lg tracking-tight">MyEvents</span>}
     </Link>
   );
 }

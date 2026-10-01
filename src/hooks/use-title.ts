@@ -10,7 +10,7 @@ export function useTitle(
   const image = og?.image;
   useEffect(() => {
     if (!title) return;
-    document.title = `${title} · HostMe`;
+    document.title = `${title} · MyEvents`;
     if (!hasOg) return;
     setMeta("og:title", title);
     if (description) {

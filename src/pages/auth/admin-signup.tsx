@@ -105,7 +105,7 @@ export default function AdminSignupPage() {
         </span>
         <h1 className="text-2xl font-bold">Create an admin account</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          You need the signup code from your HostMe administrator.
+          You need the signup code from your MyEvents administrator.
         </p>
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-6 space-y-4">
           <Field id="code" label="Signup code" error={err("code")}>

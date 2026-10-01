@@ -40,7 +40,7 @@ All endpoints: **admin only** (403 otherwise), JSON, wrapped in the usual
    "consumer_key": {"value": null, "configured": true, "last4": "x9Qa"},
    "shortcode": {"value": "174379", "configured": true, "last4": null}
  },
- "updated_at": "2026-10-01T12:00:00Z", "updated_by": "HostMe Admin"}
+ "updated_at": "2026-10-01T12:00:00Z", "updated_by": "MyEvents Admin"}
 ```
 
 `PATCH /settings/integrations/:provider/` → `data: Integration`

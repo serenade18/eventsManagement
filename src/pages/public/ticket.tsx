@@ -83,7 +83,9 @@ export default function TicketPage({ download = false }: { download?: boolean })
       )}
       <article className="print-ticket overflow-hidden rounded-2xl border border-border bg-surface shadow-sm">
         <div className="bg-brand px-6 py-5 text-primary-foreground">
-          <p className="text-xs font-semibold uppercase tracking-wider opacity-80">HostMe ticket</p>
+          <p className="text-xs font-semibold uppercase tracking-wider opacity-80">
+            MyEvents ticket
+          </p>
           <h1 className="mt-1 text-2xl font-bold leading-tight">
             {t.ticket_type_details.event_name}
           </h1>

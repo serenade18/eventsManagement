@@ -74,7 +74,7 @@ export default function LoginPage() {
           </Button>
         </form>
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          New to HostMe?{" "}
+          New to MyEvents?{" "}
           <Link to="/register" className="font-medium text-brand hover:underline">
             Create an account
           </Link>
@@ -83,9 +83,9 @@ export default function LoginPage() {
       {USE_MOCKS && (
         <div className="mt-4 rounded-xl border border-dashed border-border p-4 text-xs text-muted-foreground">
           <p className="font-semibold text-foreground">Demo accounts</p>
-          <p className="mt-1">Organizer: org@hostme.co.ke / organizer1</p>
-          <p>Admin: admin@hostme.co.ke / admin1234</p>
-          <p>Sponsor: sponsor@hostme.co.ke / sponsor12</p>
+          <p className="mt-1">Organizer: org@myevents.africa / organizer1</p>
+          <p>Admin: admin@myevents.africa / admin1234</p>
+          <p>Sponsor: sponsor@myevents.africa / sponsor12</p>
         </div>
       )}
     </NarrowPage>

@@ -5,7 +5,7 @@ import { downloadFile } from "./format";
  * Compose it onto a dark card first; fall back to the original file if the image is cross-origin.
  */
 export async function downloadQr(src: string, ticketNumber: string) {
-  const name = `hostme-ticket-${ticketNumber}.png`;
+  const name = `myevents-ticket-${ticketNumber}.png`;
   try {
     const img = await loadImage(src);
     const size = 640;

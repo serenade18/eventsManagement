@@ -1,6 +1,6 @@
-# HostMe Frontend
+# MyEvents Frontend
 
-Web frontend for **HostMe**, an event ticketing platform: buyers browse events
+Web frontend for **MyEvents**, an event ticketing platform: buyers browse events
 and buy tickets (free or via M-Pesa) without an account; organizers manage
 events and track sales.
 
@@ -33,9 +33,9 @@ in-browser simulated backend (`src/lib/api/mock.ts`) whose data lives in
 
 | Role | Email | Password |
 |---|---|---|
-| Organizer | org@hostme.co.ke | organizer1 |
-| Admin | admin@hostme.co.ke | admin1234 |
-| Sponsor | sponsor@hostme.co.ke | sponsor12 |
+| Organizer | org@myevents.africa | organizer1 |
+| Admin | admin@myevents.africa | admin1234 |
+| Sponsor | sponsor@myevents.africa | sponsor12 |
 
 Simulated M-Pesa: payments succeed after ~8 s; a buyer phone ending in `000`
 fails, one ending in `999` never pays (to see the expiry flow).

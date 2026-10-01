@@ -1,5 +1,12 @@
-import { useCallback, useEffect, useState, type ReactElement } from "react";
-import { Link, Navigate, NavLink, Outlet, useLocation } from "react-router-dom";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useState,
+  type ComponentProps,
+  type ReactElement,
+} from "react";
+import { Link, Navigate, Outlet, useLocation, useMatch, useResolvedPath } from "react-router-dom";
 import {
   PlugZap,
   CalendarDays,
@@ -114,6 +121,32 @@ function NavTip({
   );
 }
 
+/**
+ * Nav link that resolves its own active state. It takes the style function as
+ * `classFor`, never `className`: a Radix `asChild` trigger (the collapsed-sidebar
+ * tooltip) merges any `className` it passes through into one string.
+ */
+const NavItem = forwardRef<
+  HTMLAnchorElement,
+  ComponentProps<typeof Link> & {
+    to: string;
+    end: boolean;
+    classFor: (active: boolean) => string;
+  }
+>(function NavItem({ to, end, classFor, className, ...props }, ref) {
+  const { pathname } = useResolvedPath(to);
+  const active = !!useMatch({ path: pathname, end });
+  return (
+    <Link
+      ref={ref}
+      to={to}
+      aria-current={active ? "page" : undefined}
+      {...props}
+      className={cn(classFor(active), typeof className === "string" ? className : undefined)}
+    />
+  );
+});
+
 function SideNav({
   onNavigate,
   collapsed = false,
@@ -185,15 +218,10 @@ function SideNav({
           const text = to === "/console/events" ? eventsLabel(user?.user_type) : label;
           return (
             <NavTip key={to} show={collapsed} label={text}>
-              <NavLink
-                to={to}
-                end={end ?? false}
-                onClick={onNavigate}
-                className={({ isActive }) => itemCls(isActive)}
-              >
+              <NavItem to={to} end={end ?? false} onClick={onNavigate} classFor={itemCls}>
                 <Icon className="size-[18px] shrink-0" aria-hidden />
                 <span className={collapsed ? "sr-only" : ""}>{text}</span>
-              </NavLink>
+              </NavItem>
             </NavTip>
           );
         })}

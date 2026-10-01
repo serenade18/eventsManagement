@@ -15,7 +15,7 @@ function WhatsAppIcon() {
 /** Calendar, directions and sharing for an event. */
 export function EventActions({ event }: { event: Event }) {
   const url = `${window.location.origin}/events/${event.id}`;
-  const shareText = `${event.title} on HostMe: ${url}`;
+  const shareText = `${event.title} on MyEvents: ${url}`;
 
   const copy = async () => {
     try {

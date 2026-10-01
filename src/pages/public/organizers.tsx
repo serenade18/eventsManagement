@@ -22,7 +22,7 @@ import { SUPPORT_CONTACT } from "@/lib/api/client";
 import { homeFor, useAuth } from "@/lib/auth";
 import { useTitle } from "@/hooks/use-title";
 
-// Every claim here maps to something HostMe does today. No card payments, payout
+// Every claim here maps to something MyEvents does today. No card payments, payout
 // schedules or scanner apps: the backend doesn't offer them.
 const STEPS = [
   {
@@ -78,7 +78,7 @@ const FAQ = [
   },
   {
     q: "What does it cost?",
-    a: "HostMe keeps a 10% platform fee on paid ticket sales, shown on your dashboard next to your net revenue. Free events don't incur a fee.",
+    a: "MyEvents keeps a 10% platform fee on paid ticket sales, shown on your dashboard next to your net revenue. Free events don't incur a fee.",
   },
   {
     q: "Can I change ticket types after I start selling?",
@@ -95,7 +95,7 @@ const FAQ = [
 ];
 
 export default function OrganizersPage() {
-  useTitle("Sell tickets on HostMe", {
+  useTitle("Sell tickets on MyEvents", {
     description: "Create an event, sell tickets with M-Pesa, and track sales from one dashboard.",
   });
   const { status, user } = useAuth();

@@ -182,7 +182,7 @@ export default function HomePage() {
                 For organizers
               </p>
               <h2 id="organizers" className="mt-2 text-2xl font-bold sm:text-3xl">
-                Hosting something? Sell tickets on HostMe.
+                Hosting something? Sell tickets on MyEvents.
               </h2>
               <p className="mt-3 max-w-md text-muted-foreground">
                 Set up ticket tiers, take M-Pesa payments and watch sales come in, all from one

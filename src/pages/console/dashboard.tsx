@@ -56,7 +56,7 @@ export default function DashboardPage() {
         title="Dashboard"
         description={
           user?.user_type === "admin"
-            ? "Sales across every organizer on HostMe."
+            ? "Sales across every organizer on MyEvents."
             : "Sales across your events."
         }
         actions={

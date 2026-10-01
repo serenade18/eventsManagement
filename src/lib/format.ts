@@ -134,9 +134,9 @@ export function buildIcs(opts: {
   return [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//HostMe//EN",
+    "PRODID:-//MyEvents//EN",
     "BEGIN:VEVENT",
-    `UID:${Date.now()}@hostme`,
+    `UID:${Date.now()}@myevents`,
     `DTSTART;TZID=Africa/Nairobi:${d}T${t}`,
     `DTEND;TZID=Africa/Nairobi:${d}T${endH}${t.slice(2)}`,
     `SUMMARY:${esc(opts.title)}`,

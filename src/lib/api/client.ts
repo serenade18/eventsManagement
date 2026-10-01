@@ -3,7 +3,7 @@ const RAW_BASE = import.meta.env["VITE_API_BASE_URL"] as string | undefined;
 export const API_BASE = RAW_BASE ? RAW_BASE.replace(/\/$/, "") : "";
 export const USE_MOCKS = import.meta.env["VITE_USE_MOCKS"] === "true" || !API_BASE;
 export const SUPPORT_CONTACT =
-  (import.meta.env["VITE_SUPPORT_CONTACT"] as string | undefined) || "support@hostme.co.ke";
+  (import.meta.env["VITE_SUPPORT_CONTACT"] as string | undefined) || "support@myevents.africa";
 
 const GENERIC = "Something went wrong. Check your connection and try again.";
 

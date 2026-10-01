@@ -137,7 +137,7 @@ export const PROVIDERS: ProviderDef[] = [
         secret: true,
         required: true,
         check: prefixed("sk_live_", "sk_test_", "rk_live_", "rk_test_"),
-        hint: "A restricted key (rk_…) with only the permissions HostMe needs is safer.",
+        hint: "A restricted key (rk_…) with only the permissions MyEvents needs is safer.",
       },
       {
         name: "webhook_secret",

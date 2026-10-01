@@ -50,7 +50,7 @@ export default function UsersPage() {
 
   return (
     <>
-      <PageHeader title="Users" description="Everyone with a HostMe account." />
+      <PageHeader title="Users" description="Everyone with a MyEvents account." />
       <div className="mb-4 grid gap-3 sm:grid-cols-[1fr_200px]">
         <div className="relative">
           <label htmlFor="u-search" className="sr-only">
