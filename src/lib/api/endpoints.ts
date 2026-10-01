@@ -2,6 +2,7 @@ import { request, setTokens } from "./client";
 import type {
   Dashboard,
   Event,
+  EventPerformance,
   Integration,
   IntegrationProvider,
   IntegrationTestResult,
@@ -138,3 +139,26 @@ export const getUserOverview = async (id: number | string) =>
       auth: true,
     })
   ).data;
+
+export const getEventPerformance = async (id: number | string) =>
+  (
+    await request<Env<EventPerformance>>(`/events/${encodeURIComponent(String(id))}/performance/`, {
+      auth: true,
+    })
+  ).data;
+
+/** Public page-view ping. Never authenticated; failures are ignored. */
+export const trackEventView = (id: number | string) =>
+  request(`/all-events/${encodeURIComponent(String(id))}/view/`, { method: "POST" }).catch(
+    () => {},
+  );
+
+/** Quick toggles without the full form: sends only the changed flags (PUT is partial). */
+export const setEventFlags = (
+  id: number | string,
+  flags: Partial<Record<"is_open" | "is_feature", boolean>>,
+) => {
+  const fd = new FormData();
+  for (const [k, v] of Object.entries(flags)) fd.append(k, String(v));
+  return updateEvent(id, fd);
+};

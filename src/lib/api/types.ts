@@ -200,3 +200,44 @@ export interface UserOverview {
     paid_at: string | null;
   }[];
 }
+
+// ---- event performance (owner or admin) ----
+export interface EventPerformance {
+  event: { id: number; title: string; organizer: { id: number; name: string } };
+  totals: {
+    views: number;
+    views_7d: number;
+    tickets_sold: number;
+    capacity: number;
+    sell_through: number | null;
+    revenue: Money;
+    orders_paid: number;
+    avg_order_value: Money;
+    /** Paid orders per 100 page views; null until the page has views. */
+    conversion_rate: number | null;
+  };
+  orders_by_status: Record<OrderStatus, number>;
+  tiers: {
+    id: number;
+    name: string;
+    price: string;
+    capacity: number;
+    sold: number;
+    remaining: number;
+    revenue: Money;
+    sell_through: number | null;
+    sales_start: string;
+    sales_end: string;
+  }[];
+  daily: { date: string; views: number; tickets: number; revenue: Money }[];
+  recent_orders: {
+    reference: string;
+    status: OrderStatus;
+    tier: string;
+    quantity: number;
+    total_amount: Money;
+    buyer_name: string;
+    created_at: string;
+    paid_at: string | null;
+  }[];
+}

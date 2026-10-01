@@ -555,6 +555,26 @@ export async function mockTransport(
     return ok({ message: "Password updated successfully" });
   }
 
+  // ---- event views + performance ----
+  if (seg[0] === "all-events" && seg[2] === "view" && method === "POST") {
+    const e = d.events.find((x) => x.id === Number(seg[1]));
+    if (!e) return fail(404, { detail: "Not found." });
+    const day = new Date().toISOString().slice(0, 10);
+    d.views ||= {};
+    d.views[e.id] ||= {};
+    d.views[e.id][day] = (d.views[e.id][day] || 0) + 1;
+    save();
+    return ok(null, 204);
+  }
+  if (seg[0] === "events" && seg[2] === "performance" && method === "GET") {
+    if (!me) return needAuth();
+    const e = d.events.find(
+      (x) => x.id === Number(seg[1]) && (me.user_type === "admin" || x.organizer_id === me.id),
+    );
+    if (!e) return fail(404, { detail: "Not found." });
+    return ok({ error: false, message: "Event Performance", data: mockPerformance(d, e) });
+  }
+
   // ---- public events ----
   if (r === "all-events") {
     const list = [...d.events].sort((a, b) => b.date.localeCompare(a.date)).map(fullEvent);
@@ -888,6 +908,85 @@ export async function mockTransport(
     }
   }
   return fail(404, { detail: "Not found." });
+}
+
+function mockPerformance(d, e) {
+  const tiers = d.tiers.filter((t) => t.event === e.id);
+  const ids = tiers.map((t) => t.id);
+  const orders = d.orders.filter((o) => ids.includes(o.ticket_type));
+  const paid = orders.filter((o) => o.status === "paid");
+  const tix = d.tickets.filter((t) => ids.includes(t.ticket_type));
+  const views = (d.views && d.views[e.id]) || {};
+  const totalViews = Object.values(views).reduce((a, b) => a + b, 0);
+  const day = (offset) => new Date(Date.now() - offset * 864e5).toISOString().slice(0, 10);
+  const last7 = new Set(Array.from({ length: 7 }, (_, i) => day(i)));
+  const pct = (a, b) => (b ? Math.round((a / b) * 1000) / 10 : null);
+  const tierRows = tiers.map((t) => {
+    const sold = tix.filter((x) => x.ticket_type === t.id).length;
+    return {
+      id: t.id,
+      name: t.name,
+      price: t.price,
+      capacity: t.quantity,
+      sold,
+      remaining: Math.max(t.quantity - sold, 0),
+      revenue: sold * Number(t.price),
+      sell_through: pct(sold, t.quantity),
+      sales_start: t.sales_start,
+      sales_end: t.sales_end,
+    };
+  });
+  const sold = tierRows.reduce((a, r) => a + r.sold, 0);
+  const capacity = tierRows.reduce((a, r) => a + r.capacity, 0);
+  const revenue = tierRows.reduce((a, r) => a + r.revenue, 0);
+  const byStatus = { pending: 0, paid: 0, failed: 0, expired: 0, refund_required: 0 };
+  for (const o of orders) byStatus[o.status] += 1;
+  const daily = Array.from({ length: 30 }, (_, i) => {
+    const date = day(29 - i);
+    const dayTix = tix.filter((t) => t.purchase_date.slice(0, 10) === date);
+    return {
+      date,
+      views: views[date] || 0,
+      tickets: dayTix.length,
+      revenue: dayTix.reduce(
+        (a, t) => a + Number(d.tiers.find((x) => x.id === t.ticket_type)?.price || 0),
+        0,
+      ),
+    };
+  });
+  const org = d.users.find((u) => u.id === e.organizer_id);
+  return {
+    event: { id: e.id, title: e.title, organizer: { id: org?.id, name: org?.name || "" } },
+    totals: {
+      views: totalViews,
+      views_7d: Object.entries(views)
+        .filter(([k]) => last7.has(k))
+        .reduce((a, [, v]) => a + v, 0),
+      tickets_sold: sold,
+      capacity,
+      sell_through: pct(sold, capacity),
+      revenue,
+      orders_paid: paid.length,
+      avg_order_value: paid.length ? Math.round((revenue / paid.length) * 100) / 100 : 0,
+      conversion_rate: pct(paid.length, totalViews),
+    },
+    orders_by_status: byStatus,
+    tiers: tierRows,
+    daily,
+    recent_orders: [...orders]
+      .sort((a, b) => b.created - a.created)
+      .slice(0, 10)
+      .map((o) => ({
+        reference: o.reference,
+        status: o.status,
+        tier: d.tiers.find((t) => t.id === o.ticket_type)?.name,
+        quantity: o.quantity,
+        total_amount: Number(d.tiers.find((t) => t.id === o.ticket_type)?.price || 0) * o.quantity,
+        buyer_name: o.buyer_name,
+        created_at: iso(o.created),
+        paid_at: o.paid_at,
+      })),
+  };
 }
 
 function seedIntegrations() {

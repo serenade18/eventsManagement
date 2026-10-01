@@ -10,6 +10,7 @@ import { TicketPicker, useTicketSelection } from "@/components/events/ticket-pic
 import { EmptyState, ErrorState } from "@/components/common/states";
 import { WidePage } from "@/components/layout/public-layout";
 import { publicEventQuery } from "@/lib/api/queries";
+import { trackEventView } from "@/lib/api/endpoints";
 import { ApiError } from "@/lib/api/client";
 import type { Event } from "@/lib/api/types";
 import { eventWhen, isPast, money, priceRange } from "@/lib/format";
@@ -48,7 +49,22 @@ export default function EventDetailPage() {
   return <EventDetail event={q.data} />;
 }
 
+/** Count one view per event per browser session (reloads don't inflate it). */
+function useTrackView(id: number) {
+  useEffect(() => {
+    const key = `hostme.viewed.${id}`;
+    try {
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, "1");
+    } catch {
+      /* storage blocked: still count once per page load */
+    }
+    void trackEventView(id);
+  }, [id]);
+}
+
 function EventDetail({ event: e }: { event: Event }) {
+  useTrackView(e.id);
   const when = eventWhen(e.date, e.time);
   const past = isPast(e);
   const sel = useTicketSelection(e);

@@ -11,6 +11,7 @@ export const qk = {
   order: (ref: string) => ["order", ref] as const,
   ticket: (num: string) => ["ticket", num] as const,
   dashboard: ["dashboard"] as const,
+  eventPerformance: (id: string) => ["my-events", id, "performance"] as const,
   users: ["users"] as const,
   userOverview: (id: string) => ["users", id, "overview"] as const,
   me: ["me"] as const,

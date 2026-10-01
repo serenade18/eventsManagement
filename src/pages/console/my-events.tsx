@@ -7,6 +7,8 @@ import {
   MapPin,
   MoreHorizontal,
   Pencil,
+  PauseCircle,
+  PlayCircle,
   Plus,
   Search,
   Trash2,
@@ -27,6 +29,8 @@ import { EmptyState, ErrorState, PageHeader } from "@/components/common/states";
 import { EventBadges } from "@/components/common/status";
 import { ConfirmDialog } from "@/components/common/confirm-dialog";
 import { Poster } from "@/components/events/poster";
+import { useEventFlags } from "@/components/console/event-quick-controls";
+import { Switch } from "@/components/ui/switch";
 import { deleteEvent } from "@/lib/api/endpoints";
 import { myEventsQuery, qk } from "@/lib/api/queries";
 import type { Event } from "@/lib/api/types";
@@ -154,6 +158,8 @@ export default function MyEventsPage() {
 
 function EventRow({ event: e, onDelete }: { event: Event; onDelete: () => void }) {
   const when = eventWhen(e.date, e.time);
+  const flags = useEventFlags(e);
+  const past = isPast(e);
   return (
     <li className="flex items-center gap-4 rounded-xl border border-border bg-surface p-3 sm:p-4">
       <Poster
@@ -182,6 +188,17 @@ function EventRow({ event: e, onDelete }: { event: Event; onDelete: () => void }
           <EventBadges event={e} />
         </div>
       </div>
+      {!past && (
+        <label className="hidden shrink-0 items-center gap-2 text-sm sm:flex">
+          <Switch
+            checked={e.is_open}
+            disabled={flags.isPending}
+            onCheckedChange={(v) => flags.mutate({ is_open: v })}
+            aria-label={`${e.title} on sale`}
+          />
+          <span className="w-14 text-muted-foreground">{e.is_open ? "On sale" : "Paused"}</span>
+        </label>
+      )}
       <div className="hidden gap-1 md:flex">
         <Button asChild variant="ghost" size="sm">
           <Link to={`/console/events/${e.id}`}>
@@ -224,6 +241,12 @@ function EventRow({ event: e, onDelete }: { event: Event; onDelete: () => void }
               <Pencil /> Edit
             </Link>
           </DropdownMenuItem>
+          {!past && (
+            <DropdownMenuItem onSelect={() => flags.mutate({ is_open: !e.is_open })}>
+              {e.is_open ? <PauseCircle /> : <PlayCircle />}
+              {e.is_open ? "Pause sales" : "Resume sales"}
+            </DropdownMenuItem>
+          )}
           <DropdownMenuSeparator />
           <DropdownMenuItem className="text-danger focus:text-danger" onSelect={onDelete}>
             <Trash2 /> Delete

@@ -4,7 +4,16 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
-export function Logo({ to = "/", className }: { to?: string; className?: string }) {
+export function Logo({
+  to = "/",
+  className,
+  compact,
+}: {
+  to?: string;
+  className?: string;
+  /** Mark only, for the collapsed sidebar. */
+  compact?: boolean;
+}) {
   return (
     <Link
       to={to}
@@ -25,7 +34,7 @@ export function Logo({ to = "/", className }: { to?: string; className?: string 
           />
         </svg>
       </span>
-      <span className="text-lg tracking-tight">HostMe</span>
+      {!compact && <span className="text-lg tracking-tight">HostMe</span>}
     </Link>
   );
 }
