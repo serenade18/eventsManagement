@@ -241,3 +241,87 @@ export interface EventPerformance {
     paid_at: string | null;
   }[];
 }
+
+// ---- wallets & payouts ----
+export type WalletTxKind = "sale" | "withdrawal" | "withdrawal_return" | "adjustment";
+export type WithdrawalStatus = "pending" | "paid" | "rejected" | "cancelled";
+export type WithdrawalMethod = "mpesa" | "bank";
+
+export interface WalletSummary {
+  balance: Money;
+  currency: "KES";
+  min_withdrawal: Money;
+  /** e.g. "0.10" */
+  commission_rate: Money;
+  can_withdraw: boolean;
+  totals: {
+    gross_sales: Money;
+    commission: Money;
+    net_earnings: Money;
+    adjustments: Money;
+    withdrawn: Money;
+    pending_withdrawals: Money;
+    pending_count: number;
+  };
+}
+
+export interface WalletTransaction {
+  id: number;
+  kind: WalletTxKind;
+  /** Signed: credits positive, debits negative. */
+  amount: Money;
+  balance_after: Money;
+  gross_amount: Money | null;
+  commission: Money | null;
+  order_reference: string | null;
+  withdrawal_id: number | null;
+  description: string;
+  created_at: string;
+}
+
+export interface Withdrawal {
+  id: number;
+  amount: Money;
+  method: WithdrawalMethod;
+  status: WithdrawalStatus;
+  mpesa_phone: string;
+  bank_name: string;
+  account_name: string;
+  account_number: string;
+  payout_reference: string;
+  admin_note: string;
+  requested_at: string;
+  processed_at: string | null;
+  user?: Pick<User, "id" | "name" | "email" | "phone" | "user_type" | "organization">;
+  wallet_balance?: Money;
+}
+
+export interface WithdrawalRequestBody {
+  password: string;
+  amount: string;
+  method: WithdrawalMethod;
+  mpesa_phone?: string;
+  bank_name?: string;
+  account_name?: string;
+  account_number?: string;
+}
+
+export interface PayoutSettings {
+  min_withdrawal: Money;
+  commission_rate: Money;
+  updated_at: string | null;
+  updated_by: string | null;
+}
+
+export interface WalletsOverview {
+  wallets: {
+    user: Pick<User, "id" | "name" | "email" | "user_type" | "organization">;
+    balance: Money;
+  }[];
+  totals: {
+    balances: Money;
+    pending_withdrawals: Money;
+    pending_count: number;
+    commission_earned: Money;
+  };
+}

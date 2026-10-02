@@ -34,6 +34,8 @@ const PasswordPage = lazy(() => import("@/pages/console/password"));
 const UsersPage = lazy(() => import("@/pages/admin/users"));
 const UserDetailPage = lazy(() => import("@/pages/admin/user-detail"));
 const IntegrationsPage = lazy(() => import("@/pages/admin/integrations"));
+const WalletPage = lazy(() => import("@/pages/console/wallet"));
+const PayoutsPage = lazy(() => import("@/pages/admin/payouts"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -148,6 +150,26 @@ function ConsoleRoutes() {
             <Lazy>
               <RequireRole roles={["admin"]}>
                 <UserDetailPage />
+              </RequireRole>
+            </Lazy>
+          }
+        />
+        <Route
+          path="wallet"
+          element={
+            <Lazy>
+              <RequireRole roles={["organizer", "sponsor"]}>
+                <WalletPage />
+              </RequireRole>
+            </Lazy>
+          }
+        />
+        <Route
+          path="payouts"
+          element={
+            <Lazy>
+              <RequireRole roles={["admin"]}>
+                <PayoutsPage />
               </RequireRole>
             </Lazy>
           }

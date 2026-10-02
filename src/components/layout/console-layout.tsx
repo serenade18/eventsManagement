@@ -9,6 +9,8 @@ import {
 import { Link, Navigate, Outlet, useLocation, useMatch, useResolvedPath } from "react-router-dom";
 import {
   PlugZap,
+  Wallet,
+  Banknote,
   CalendarDays,
   KeyRound,
   LayoutDashboard,
@@ -48,6 +50,8 @@ const NAV: { to: string; label: string; icon: typeof User; roles: UserType[]; en
   },
   { to: "/console/events", label: "My events", icon: CalendarDays, roles: ["organizer", "admin"] },
   { to: "/console/tickets", label: "Tickets", icon: Ticket, roles: ["organizer", "admin"] },
+  { to: "/console/wallet", label: "Wallet", icon: Wallet, roles: ["organizer", "sponsor"] },
+  { to: "/console/payouts", label: "Payouts", icon: Banknote, roles: ["admin"] },
   { to: "/console/users", label: "Users", icon: Users, roles: ["admin"] },
   { to: "/console/integrations", label: "Integrations", icon: PlugZap, roles: ["admin"] },
   {

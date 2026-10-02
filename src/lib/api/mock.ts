@@ -310,6 +310,7 @@ function issue(o: MockOrder) {
   }
   o.status = "paid";
   o.paid_at = iso(Date.now());
+  creditOrder(o);
 }
 function soldFor(tierId: number) {
   const d = load();
@@ -553,6 +554,208 @@ export async function mockTransport(
     me.password = json.new_password;
     save();
     return ok({ message: "Password updated successfully" });
+  }
+
+  // ---- wallets & payouts ----
+  if (seg[0] === "wallet") {
+    if (!me) return needAuth();
+    if (!["organizer", "sponsor"].includes(me.user_type))
+      return fail(403, { detail: "Only organizers and sponsors have wallets." });
+    const w = walletOf(me.id);
+    if (seg.length === 1 && method === "GET")
+      return ok({ error: false, message: "Wallet", data: walletSummary(me.id) });
+    if (seg[1] === "transactions")
+      return ok({ error: false, message: "Wallet transactions", data: w.txs });
+    if (seg[1] === "withdrawals" && seg.length === 2 && method === "GET")
+      return ok({ error: false, message: "Withdrawals", data: w.withdrawals });
+    if (seg[1] === "withdrawals" && seg.length === 2 && method === "POST") {
+      if (json?.password !== me.password) return fail(403, { detail: "Incorrect password" });
+      const amount = Number(json.amount);
+      const min = (d.payoutSettings || {}).min_withdrawal ?? 15000;
+      if (!(amount >= min))
+        return fail(400, {
+          error: true,
+          message: `The minimum withdrawal is KES ${min.toLocaleString()}`,
+          errors: { amount: [`Minimum is KES ${min.toLocaleString()}.`] },
+        });
+      if (amount > w.balance)
+        return fail(400, {
+          error: true,
+          message: "That's more than your available balance",
+          errors: { amount: ["More than your balance."] },
+        });
+      const wd = {
+        id: nextId(),
+        amount,
+        method: json.method,
+        status: "pending",
+        mpesa_phone: json.mpesa_phone || "",
+        bank_name: json.bank_name || "",
+        account_name: json.account_name || "",
+        account_number: json.account_number || "",
+        payout_reference: "",
+        admin_note: "",
+        requested_at: iso(Date.now()),
+        processed_at: null,
+      };
+      w.withdrawals.unshift(wd);
+      post(
+        w,
+        "withdrawal",
+        -amount,
+        `Withdrawal #${wd.id} to ${wd.method === "mpesa" ? "M-Pesa" : "Bank transfer"}`,
+        { withdrawal_id: wd.id },
+      );
+      save();
+      return ok({ error: false, message: "Withdrawal requested", data: wd }, 201);
+    }
+    if (seg[1] === "withdrawals" && seg[3] === "cancel" && method === "POST") {
+      const wd = w.withdrawals.find((x) => x.id === Number(seg[2]));
+      if (!wd) return fail(404, { detail: "Not found." });
+      if (wd.status !== "pending")
+        return fail(400, { error: true, message: `This withdrawal is already ${wd.status}` });
+      post(w, "withdrawal_return", wd.amount, `Withdrawal #${wd.id} cancelled`, {
+        withdrawal_id: wd.id,
+      });
+      Object.assign(wd, { status: "cancelled", processed_at: iso(Date.now()) });
+      save();
+      return ok({ error: false, message: "Withdrawal cancelled", data: wd });
+    }
+  }
+  if (seg[0] === "admin" && ["payout-settings", "withdrawals", "wallets"].includes(seg[1])) {
+    if (!me) return needAuth();
+    if (me.user_type !== "admin")
+      return fail(403, { detail: "You do not have permission to perform this action." });
+    d.payoutSettings ||= { min_withdrawal: 15000, updated_at: null, updated_by: null };
+    const settingsOut = () => ({ ...d.payoutSettings, commission_rate: COMMISSION });
+    if (seg[1] === "payout-settings" && method === "GET")
+      return ok({ error: false, message: "Payout settings", data: settingsOut() });
+    if (seg[1] === "payout-settings" && method === "PATCH") {
+      const v = Number(json?.min_withdrawal);
+      if (!(v >= 1))
+        return fail(400, {
+          error: true,
+          message: "Validation Error",
+          errors: { min_withdrawal: ["Enter an amount of at least KES 1."] },
+        });
+      Object.assign(d.payoutSettings, {
+        min_withdrawal: v,
+        updated_at: iso(Date.now()),
+        updated_by: me.name,
+      });
+      save();
+      return ok({ error: false, message: "Payout settings", data: settingsOut() });
+    }
+    if (seg[1] === "withdrawals" && seg.length === 2) {
+      const status = new URLSearchParams(path.split("?")[1] || "").get("status");
+      const rows = allWithdrawals()
+        .filter(({ x }) => !status || x.status === status)
+        .sort((a, b) => b.x.requested_at.localeCompare(a.x.requested_at));
+      return ok({
+        error: false,
+        message: "Withdrawals",
+        data: rows.map(({ x, w, user }) => ({
+          ...x,
+          wallet_balance: w.balance,
+          user: user && {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            phone: user.phone,
+            user_type: user.user_type,
+            organization: user.organization,
+          },
+        })),
+      });
+    }
+    if (seg[1] === "withdrawals" && seg.length === 4 && method === "POST") {
+      const row = allWithdrawals().find(({ x }) => x.id === Number(seg[2]));
+      if (!row) return fail(404, { detail: "Not found." });
+      const { x, w } = row;
+      if (x.status !== "pending")
+        return fail(400, { error: true, message: `This withdrawal is already ${x.status}` });
+      if (seg[3] === "paid") {
+        if (!String(json?.reference || "").trim())
+          return fail(400, {
+            error: true,
+            message: "Enter the payout reference",
+            errors: { reference: ["M-Pesa receipt or bank reference."] },
+          });
+        Object.assign(x, {
+          status: "paid",
+          payout_reference: json.reference.trim(),
+          admin_note: json.note || "",
+          processed_at: iso(Date.now()),
+        });
+      } else if (seg[3] === "reject") {
+        if (!String(json?.reason || "").trim())
+          return fail(400, {
+            error: true,
+            message: "Give a reason",
+            errors: { reason: ["Tell the user why."] },
+          });
+        post(w, "withdrawal_return", x.amount, `Withdrawal #${x.id} rejected`, {
+          withdrawal_id: x.id,
+        });
+        Object.assign(x, {
+          status: "rejected",
+          admin_note: json.reason.trim(),
+          processed_at: iso(Date.now()),
+        });
+      } else return fail(404, { detail: "Not found." });
+      save();
+      return ok({ error: false, message: "Withdrawal updated", data: x });
+    }
+    if (seg[1] === "wallets" && seg.length === 2) {
+      const people = d.users.filter((u) => ["organizer", "sponsor"].includes(u.user_type));
+      const pending = allWithdrawals().filter(({ x }) => x.status === "pending");
+      return ok({
+        error: false,
+        message: "Wallets",
+        data: {
+          wallets: people.map((u) => ({
+            user: {
+              id: u.id,
+              name: u.name,
+              email: u.email,
+              user_type: u.user_type,
+              organization: u.organization,
+            },
+            balance: walletOf(u.id).balance,
+          })),
+          totals: {
+            balances: people.reduce((a, u) => a + walletOf(u.id).balance, 0),
+            pending_withdrawals: pending.reduce((a, { x }) => a + x.amount, 0),
+            pending_count: pending.length,
+            commission_earned: Object.values(d.wallets || {})
+              .flatMap((w) => w.txs)
+              .filter((t) => t.kind === "sale")
+              .reduce((a, t) => a + t.commission, 0),
+          },
+        },
+      });
+    }
+    if (seg[1] === "wallets" && seg[3] === "adjust" && method === "POST") {
+      if (json?.password !== me.password) return fail(403, { detail: "Incorrect password" });
+      const u = d.users.find((x) => x.id === Number(seg[2]));
+      if (!u) return fail(404, { detail: "Not found." });
+      if (!["organizer", "sponsor"].includes(u.user_type))
+        return fail(400, { error: true, message: "Only organizers and sponsors have wallets" });
+      if (!String(json.reason || "").trim())
+        return fail(400, {
+          error: true,
+          message: "Validation Error",
+          errors: { reason: ["Say what this adjustment is for."] },
+        });
+      const w = walletOf(u.id);
+      try {
+        post(w, "adjustment", Number(json.amount), json.reason.trim());
+      } catch {
+        return fail(400, { error: true, message: "Insufficient balance" });
+      }
+      save();
+      return ok({ error: false, message: "Wallet adjusted", data: { balance: w.balance } });
+    }
   }
 
   // ---- event views + performance ----
@@ -987,6 +1190,84 @@ function mockPerformance(d, e) {
         paid_at: o.paid_at,
       })),
   };
+}
+
+// ---- wallets (demo): mirrors hostmeApps.wallets ----
+const COMMISSION = 0.1;
+function walletOf(userId) {
+  const d = load();
+  d.wallets ||= {};
+  d.wallets[userId] ||= { balance: 0, txs: [], withdrawals: [] };
+  return d.wallets[userId];
+}
+function post(w, kind, amount, description, extra = {}) {
+  const next = Math.round((w.balance + amount) * 100) / 100;
+  if (next < 0) throw new Error("Insufficient balance");
+  w.balance = next;
+  w.txs.unshift({
+    id: nextId(),
+    kind,
+    amount,
+    balance_after: next,
+    gross_amount: null,
+    commission: null,
+    order_reference: null,
+    withdrawal_id: null,
+    description,
+    created_at: iso(Date.now()),
+    ...extra,
+  });
+}
+function creditOrder(o) {
+  const d = load();
+  const tier = d.tiers.find((t) => t.id === o.ticket_type);
+  const ev = d.events.find((e) => e.id === tier.event);
+  const gross = Number(tier.price) * o.quantity;
+  if (gross <= 0) return;
+  const w = walletOf(ev.organizer_id);
+  if (w.txs.some((t) => t.order_reference === o.reference)) return;
+  const commission = Math.round(gross * COMMISSION * 100) / 100;
+  post(w, "sale", gross - commission, `${o.quantity} × ${tier.name} · ${ev.title}`, {
+    gross_amount: gross,
+    commission,
+    order_reference: o.reference,
+  });
+}
+function walletSummary(userId) {
+  const d = load();
+  const w = walletOf(userId);
+  const min = (d.payoutSettings || {}).min_withdrawal ?? 15000;
+  const sum = (arr, f) => arr.reduce((a, x) => a + (f(x) || 0), 0);
+  const sales = w.txs.filter((t) => t.kind === "sale");
+  const pending = w.withdrawals.filter((x) => x.status === "pending");
+  return {
+    balance: w.balance,
+    currency: "KES",
+    min_withdrawal: min,
+    commission_rate: COMMISSION,
+    can_withdraw: w.balance >= min,
+    totals: {
+      gross_sales: sum(sales, (t) => t.gross_amount),
+      commission: sum(sales, (t) => t.commission),
+      net_earnings: sum(sales, (t) => t.amount),
+      adjustments: sum(
+        w.txs.filter((t) => t.kind === "adjustment"),
+        (t) => t.amount,
+      ),
+      withdrawn: sum(
+        w.withdrawals.filter((x) => x.status === "paid"),
+        (x) => x.amount,
+      ),
+      pending_withdrawals: sum(pending, (x) => x.amount),
+      pending_count: pending.length,
+    },
+  };
+}
+function allWithdrawals() {
+  const d = load();
+  return Object.entries(d.wallets || {}).flatMap(([uid, w]) =>
+    w.withdrawals.map((x) => ({ x, w, user: d.users.find((u) => u.id === Number(uid)) })),
+  );
 }
 
 function seedIntegrations() {

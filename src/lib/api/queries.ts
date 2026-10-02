@@ -15,6 +15,12 @@ export const qk = {
   users: ["users"] as const,
   userOverview: (id: string) => ["users", id, "overview"] as const,
   me: ["me"] as const,
+  wallet: ["wallet"] as const,
+  walletTx: ["wallet", "transactions"] as const,
+  myWithdrawals: ["wallet", "withdrawals"] as const,
+  payoutSettings: ["payouts", "settings"] as const,
+  allWithdrawals: (status: string) => ["payouts", "withdrawals", status] as const,
+  walletsOverview: ["payouts", "wallets"] as const,
 };
 
 /** The public list is cached for 60 s (spec §14). */

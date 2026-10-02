@@ -14,6 +14,14 @@ import type {
   TicketDetail,
   User,
   UserOverview,
+  Money,
+  PayoutSettings,
+  WalletSummary,
+  WalletTransaction,
+  WalletsOverview,
+  Withdrawal,
+  WithdrawalRequestBody,
+  WithdrawalStatus,
 } from "./types";
 
 interface Env<T> {
@@ -162,3 +170,75 @@ export const setEventFlags = (
   for (const [k, v] of Object.entries(flags)) fd.append(k, String(v));
   return updateEvent(id, fd);
 };
+
+// ---- wallet (organizers & sponsors) ----
+export const getWallet = async () =>
+  (await request<Env<WalletSummary>>("/wallet/", { auth: true })).data;
+export const listWalletTransactions = async () =>
+  (await request<Env<WalletTransaction[]>>("/wallet/transactions/", { auth: true })).data;
+export const listMyWithdrawals = async () =>
+  (await request<Env<Withdrawal[]>>("/wallet/withdrawals/", { auth: true })).data;
+export const requestWithdrawal = async (body: WithdrawalRequestBody) =>
+  (
+    await request<Env<Withdrawal>>("/wallet/withdrawals/", {
+      method: "POST",
+      json: body,
+      auth: true,
+    })
+  ).data;
+export const cancelWithdrawal = async (id: number) =>
+  (
+    await request<Env<Withdrawal>>(`/wallet/withdrawals/${id}/cancel/`, {
+      method: "POST",
+      auth: true,
+    })
+  ).data;
+
+// ---- payouts (admin) ----
+export const getPayoutSettings = async () =>
+  (await request<Env<PayoutSettings>>("/admin/payout-settings/", { auth: true })).data;
+export const updatePayoutSettings = async (min_withdrawal: string) =>
+  (
+    await request<Env<PayoutSettings>>("/admin/payout-settings/", {
+      method: "PATCH",
+      json: { min_withdrawal },
+      auth: true,
+    })
+  ).data;
+export const listAllWithdrawals = async (status?: WithdrawalStatus) =>
+  (
+    await request<Env<Withdrawal[]>>(`/admin/withdrawals/${status ? `?status=${status}` : ""}`, {
+      auth: true,
+    })
+  ).data;
+export const markWithdrawalPaid = async (id: number, reference: string, note: string) =>
+  (
+    await request<Env<Withdrawal>>(`/admin/withdrawals/${id}/paid/`, {
+      method: "POST",
+      json: { reference, note },
+      auth: true,
+    })
+  ).data;
+export const rejectWithdrawal = async (id: number, reason: string) =>
+  (
+    await request<Env<Withdrawal>>(`/admin/withdrawals/${id}/reject/`, {
+      method: "POST",
+      json: { reason },
+      auth: true,
+    })
+  ).data;
+export const getWalletsOverview = async () =>
+  (await request<Env<WalletsOverview>>("/admin/wallets/", { auth: true })).data;
+export const adjustWallet = async (
+  userId: number,
+  amount: string,
+  reason: string,
+  password: string,
+) =>
+  (
+    await request<Env<{ balance: Money }>>(`/admin/wallets/${userId}/adjust/`, {
+      method: "POST",
+      json: { amount, reason, password },
+      auth: true,
+    })
+  ).data;
