@@ -87,23 +87,39 @@ export interface Order {
   tickets: Ticket[];
 }
 
+export type PaymentMethod = "mpesa" | "card";
+
 export interface PurchaseRequest {
   ticket_type: number;
   quantity: number;
   buyer_name: string;
   buyer_phone: string;
   buyer_email?: string;
+  payment_method?: PaymentMethod;
 }
 
 export type PurchaseResult =
   | { kind: "issued"; order: Order }
   | {
       kind: "awaiting_payment";
+      method: "mpesa";
       reference: string;
       checkoutRequestId: string;
       amount: number;
       expiresAt: string;
+    }
+  | {
+      kind: "awaiting_payment";
+      method: "card";
+      reference: string;
+      /** Hosted Stripe Checkout page to send the buyer to. */
+      checkoutUrl: string;
+      amount: number;
+      expiresAt: string;
     };
+
+/** Which methods checkout should offer. */
+export type PaymentMethods = Record<PaymentMethod, boolean>;
 
 export interface Dashboard {
   overview: {

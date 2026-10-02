@@ -1,10 +1,11 @@
-import { useEffect, useMemo } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   AlertOctagon,
   CheckCircle2,
   Clock,
+  CreditCard,
   History,
   Smartphone,
   WifiOff,
@@ -18,6 +19,7 @@ import { NarrowPage } from "@/components/layout/public-layout";
 import { useCountdown, useElapsed, useOrderPolling } from "@/hooks/use-order-polling";
 import { useTitle } from "@/hooks/use-title";
 import { SUPPORT_CONTACT } from "@/lib/api/client";
+import { cancelCardOrder } from "@/lib/api/endpoints";
 import { qk } from "@/lib/api/queries";
 import { clearPending, loadPending, setPrefill } from "@/lib/checkout";
 import { countdown, displayTicketNumber, money } from "@/lib/format";
@@ -28,8 +30,18 @@ export default function PaymentPage() {
   const { reference = "" } = useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const [params] = useSearchParams();
   const pending = useMemo(() => loadPending(reference), [reference]);
-  const { order, error, reconnecting, gaveUp, startedAt } = useOrderPolling(reference);
+  const card = params.get("method") === "card" || pending?.method === "card";
+  // Back from Stripe without paying: release the tickets first, then poll the result.
+  const [cancelling, setCancelling] = useState(card && params.get("cancelled") === "1");
+  useEffect(() => {
+    if (!cancelling) return;
+    cancelCardOrder(reference)
+      .catch(() => undefined) // polling still reports the real status
+      .finally(() => setCancelling(false));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const { order, error, reconnecting, gaveUp, startedAt } = useOrderPolling(reference, !cancelling);
   const status = order?.status;
   const remaining = useCountdown(order?.expires_at ?? pending?.expires_at);
   const elapsed = useElapsed(startedAt);
@@ -45,6 +57,7 @@ export default function PaymentPage() {
     if (pending)
       setPrefill({
         tier_id: pending.tier_id,
+        method: pending.method,
         quantity: pending.quantity,
         buyer_name: pending.buyer_name,
         buyer_phone: pending.buyer_phone,
@@ -101,10 +114,8 @@ export default function PaymentPage() {
         </div>
 
         <div className="px-5 py-8 text-center" aria-live="polite" aria-atomic="true">
-          {!order ? (
-            <Waiting amount={amount} remaining={remaining} />
-          ) : status === "pending" ? (
-            <Waiting amount={amount} remaining={remaining} />
+          {!order || status === "pending" ? (
+            <Waiting amount={amount} remaining={remaining} card={card} />
           ) : status === "paid" ? (
             <StatusBlock
               tone="success"
@@ -153,9 +164,13 @@ export default function PaymentPage() {
 
         {(status === "pending" || !order) && elapsed > PROMPT_HELP_AFTER_MS && (
           <div className="border-t border-border bg-muted/50 px-5 py-4 text-sm">
-            <p className="font-medium">Didn't get the prompt?</p>
+            <p className="font-medium">
+              {card ? "Didn't finish paying?" : "Didn't get the prompt?"}
+            </p>
             <p className="mt-1 text-muted-foreground">
-              Check that your phone is on and has signal, then start a new payment.
+              {card
+                ? "If you completed payment, your tickets will appear here shortly. Otherwise, start a new payment."
+                : "Check that your phone is on and has signal, then start a new payment."}
             </p>
             <Button asChild variant="outline" className="mt-3 w-full">
               <Link to={retryHref}>Try again</Link>
@@ -184,7 +199,16 @@ export default function PaymentPage() {
   );
 }
 
-function Waiting({ amount, remaining }: { amount: number | undefined; remaining: number }) {
+function Waiting({
+  amount,
+  remaining,
+  card,
+}: {
+  amount: number | undefined;
+  remaining: number;
+  card: boolean;
+}) {
+  const Icon = card ? CreditCard : Smartphone;
   return (
     <div>
       <div className="relative mx-auto mb-5 grid size-24 place-items-center">
@@ -193,18 +217,22 @@ function Waiting({ amount, remaining }: { amount: number | undefined; remaining:
           aria-hidden
         />
         <span className="relative grid size-24 place-items-center rounded-full bg-brand-soft text-brand">
-          <Smartphone className="size-11" aria-hidden />
+          <Icon className="size-11" aria-hidden />
         </span>
       </div>
-      <h1 className="text-2xl font-bold">Check your phone</h1>
+      <h1 className="text-2xl font-bold">
+        {card ? "Confirming your card payment" : "Check your phone"}
+      </h1>
       <p className="mx-auto mt-2 max-w-sm text-muted-foreground">
-        Enter your M-Pesa PIN to pay{" "}
+        {card ? "We're confirming your payment of " : "Enter your M-Pesa PIN to pay "}
         <strong className="text-foreground tabular">
           {amount !== undefined ? money(amount, false) : "the amount shown"}
         </strong>
-        .
+        {card ? " with Stripe." : "."}
       </p>
-      <p className="mt-1 text-sm text-muted-foreground">Waiting for your M-Pesa payment.</p>
+      <p className="mt-1 text-sm text-muted-foreground">
+        {card ? "This usually takes a few seconds." : "Waiting for your M-Pesa payment."}
+      </p>
       {remaining > 0 && (
         <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-warning-soft px-3 py-1.5 text-sm font-medium text-warning">
           <Clock className="size-4" aria-hidden />

@@ -8,6 +8,8 @@ import type {
   IntegrationTestResult,
   IntegrationUpdate,
   Order,
+  PaymentMethod,
+  PaymentMethods,
   PurchaseRequest,
   PurchaseResult,
   Ticket,
@@ -91,12 +93,24 @@ export async function purchase(body: PurchaseRequest): Promise<PurchaseResult> {
   if (r.order) return { kind: "issued", order: r.order };
   const d = r.data as {
     order_reference: string;
+    payment_method?: PaymentMethod;
     checkout_request_id: string;
+    checkout_url: string;
     amount: number;
     expires_at: string;
   };
+  if (d.payment_method === "card")
+    return {
+      kind: "awaiting_payment",
+      method: "card",
+      reference: d.order_reference,
+      checkoutUrl: d.checkout_url,
+      amount: Number(d.amount),
+      expiresAt: d.expires_at,
+    };
   return {
     kind: "awaiting_payment",
+    method: "mpesa",
     reference: d.order_reference,
     checkoutRequestId: d.checkout_request_id,
     amount: Number(d.amount),
@@ -105,6 +119,12 @@ export async function purchase(body: PurchaseRequest): Promise<PurchaseResult> {
 }
 export const getOrder = async (ref: string) =>
   (await request<Env<Order>>(`/orders/${encodeURIComponent(ref)}/`)).data;
+/** Buyer came back from card checkout without paying: release the tickets. */
+export const cancelCardOrder = async (ref: string) =>
+  (await request<Env<Order>>(`/orders/${encodeURIComponent(ref)}/cancel-card/`, { method: "POST" }))
+    .data;
+export const getPaymentMethods = async () =>
+  (await request<Env<PaymentMethods>>("/payment-methods/")).data;
 export const getTicket = async (num: string) =>
   (await request<Env<TicketDetail>>(`/tickets/${encodeURIComponent(num)}/`)).data;
 

@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, CalendarDays, Lock, MapPin, Smartphone } from "lucide-react";
+import { ArrowLeft, CalendarDays, CreditCard, Lock, MapPin, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,12 +17,14 @@ import {
   Spinner,
 } from "@/components/common/states";
 import { NarrowPage } from "@/components/layout/public-layout";
-import { publicEventQuery, qk } from "@/lib/api/queries";
+import { paymentMethodsQuery, publicEventQuery, qk } from "@/lib/api/queries";
 import { ApiError, errorMessage } from "@/lib/api/client";
 import { purchase } from "@/lib/api/endpoints";
 import { getPrefill, savePending, setPrefill, clearPending } from "@/lib/checkout";
 import { purchaseSchema, type PurchaseValues } from "@/lib/schemas";
 import { eventWhen, isPast, money, saleState } from "@/lib/format";
+import type { PaymentMethod } from "@/lib/api/types";
+import { cn } from "@/lib/utils";
 import { useTitle } from "@/hooks/use-title";
 
 export default function CheckoutPage() {
@@ -107,6 +109,12 @@ function CheckoutForm({
   const initialQty = Number.isInteger(qtyParam) && qtyParam >= 1 && qtyParam <= 10 ? qtyParam : 1;
   const submitted = useRef(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [redirecting, setRedirecting] = useState(false);
+  const methods = useQuery(paymentMethodsQuery());
+  const cardAvailable = methods.data?.card === true;
+  const [chosen, setChosen] = useState<PaymentMethod>(prefill?.method ?? "mpesa");
+  // Only offer cards once the backend confirms they're on; M-Pesa otherwise.
+  const method: PaymentMethod = cardAvailable ? chosen : "mpesa";
   const {
     register,
     control,
@@ -127,6 +135,7 @@ function CheckoutForm({
   const unit = Number(tier.price);
   const total = unit * qty;
   const free = unit === 0;
+  const card = !free && method === "card";
 
   const onSubmit = async (v: PurchaseValues) => {
     if (submitted.current) return; // never submit twice
@@ -139,9 +148,11 @@ function CheckoutForm({
         buyer_name: v.buyer_name,
         buyer_phone: v.buyer_phone,
         ...(v.buyer_email ? { buyer_email: v.buyer_email } : {}),
+        ...(free ? {} : { payment_method: method }),
       });
       setPrefill({
         tier_id: tier.id,
+        method,
         quantity: v.quantity,
         buyer_name: v.buyer_name,
         buyer_phone: v.buyer_phone,
@@ -163,7 +174,14 @@ function CheckoutForm({
           quantity: v.quantity,
           buyer_name: v.buyer_name,
           buyer_phone: v.buyer_phone,
+          method: r.method,
         });
+        if (r.method === "card") {
+          // Off to Stripe's hosted page; it sends the buyer back to /orders/:ref/pay.
+          setRedirecting(true);
+          window.location.assign(r.checkoutUrl);
+          return;
+        }
         navigate(`/orders/${r.reference}/pay`, { replace: true });
       }
     } catch (e) {
@@ -233,12 +251,43 @@ function CheckoutForm({
             {...register("buyer_name")}
           />
         </Field>
+        {!free && cardAvailable && (
+          <fieldset>
+            <legend className="mb-2 text-sm font-medium">Pay with</legend>
+            <div role="radiogroup" className="grid grid-cols-2 gap-2">
+              {(
+                [
+                  ["mpesa", "M-Pesa", Smartphone],
+                  ["card", "Card", CreditCard],
+                ] as const
+              ).map(([value, label, Icon]) => (
+                <label
+                  key={value}
+                  className={cn(
+                    "flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border px-3 text-sm font-medium has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring",
+                    method === value ? "border-brand bg-brand-soft text-brand" : "border-border",
+                  )}
+                >
+                  <input
+                    type="radio"
+                    name="payment_method"
+                    value={value}
+                    checked={method === value}
+                    onChange={() => setChosen(value)}
+                    className="sr-only"
+                  />
+                  <Icon className="size-4" aria-hidden /> {label}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        )}
         <Field
           id="buyer_phone"
-          label="M-Pesa phone number"
+          label={free || card ? "Phone number" : "M-Pesa phone number"}
           error={errors.buyer_phone?.message}
           hint={
-            free
+            free || card
               ? "Your tickets will be sent here by SMS."
               : "We'll send the M-Pesa prompt and your tickets to this number."
           }
@@ -285,13 +334,27 @@ function CheckoutForm({
               </dd>
             </div>
           </dl>
-          <Button type="submit" size="lg" className="mt-4 w-full" disabled={isSubmitting}>
-            {isSubmitting ? (
+          <Button
+            type="submit"
+            size="lg"
+            className="mt-4 w-full"
+            disabled={isSubmitting || redirecting}
+          >
+            {isSubmitting || redirecting ? (
               <>
-                <Spinner /> {free ? "Issuing tickets…" : "Sending M-Pesa prompt…"}
+                <Spinner />{" "}
+                {free
+                  ? "Issuing tickets…"
+                  : card
+                    ? "Opening card payment…"
+                    : "Sending M-Pesa prompt…"}
               </>
             ) : free ? (
               "Get free tickets"
+            ) : card ? (
+              <>
+                <CreditCard /> Pay {money(total)} by card
+              </>
             ) : (
               <>
                 <Smartphone /> Continue to payment
@@ -300,7 +363,9 @@ function CheckoutForm({
           </Button>
           {!free && (
             <p className="mt-3 text-center text-xs text-muted-foreground">
-              You'll get an M-Pesa prompt on your phone to pay {money(total)}.
+              {card
+                ? "You'll enter your card details on Stripe's secure payment page."
+                : `You'll get an M-Pesa prompt on your phone to pay ${money(total)}.`}
             </p>
           )}
         </div>

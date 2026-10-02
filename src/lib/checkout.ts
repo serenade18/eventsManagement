@@ -12,6 +12,8 @@ export interface PendingCheckout {
   quantity: number;
   buyer_name: string;
   buyer_phone: string;
+  /** Absent on purchases saved before card payments existed: M-Pesa. */
+  method?: "mpesa" | "card";
 }
 
 export function savePending(p: PendingCheckout) {
@@ -42,6 +44,7 @@ export function clearPending() {
 
 // Buyer details for prefilling a retry. Email stays in memory only (never persisted).
 export interface BuyerPrefill {
+  method?: "mpesa" | "card" | undefined;
   quantity: number;
   buyer_name: string;
   buyer_phone: string;
@@ -55,6 +58,11 @@ export function getPrefill(tierId: number): BuyerPrefill | null {
   if (prefill && prefill.tier_id === tierId) return prefill;
   const p = loadPending();
   if (p && p.tier_id === tierId)
-    return { quantity: p.quantity, buyer_name: p.buyer_name, buyer_phone: p.buyer_phone };
+    return {
+      method: p.method,
+      quantity: p.quantity,
+      buyer_name: p.buyer_name,
+      buyer_phone: p.buyer_phone,
+    };
   return null;
 }

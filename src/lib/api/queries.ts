@@ -21,6 +21,7 @@ export const qk = {
   payoutSettings: ["payouts", "settings"] as const,
   allWithdrawals: (status: string) => ["payouts", "withdrawals", status] as const,
   walletsOverview: ["payouts", "wallets"] as const,
+  paymentMethods: ["payment-methods"] as const,
 };
 
 /** The public list is cached for 60 s (spec §14). */
@@ -33,6 +34,10 @@ export const publicEventQuery = (id: string) =>
     queryFn: () => api.getPublicEvent(id),
     staleTime: 60_000,
   });
+
+/** Checkout payment options; falls back to M-Pesa only while loading or on error. */
+export const paymentMethodsQuery = () =>
+  queryOptions({ queryKey: qk.paymentMethods, queryFn: api.getPaymentMethods, staleTime: 60_000 });
 
 export const myEventsQuery = () =>
   queryOptions({ queryKey: qk.myEvents, queryFn: api.listMyEvents });

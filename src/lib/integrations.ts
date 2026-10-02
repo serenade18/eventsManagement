@@ -120,8 +120,9 @@ export const PROVIDERS: ProviderDef[] = [
     id: "stripe",
     name: "Stripe",
     category: "Payments",
-    description: "Card payments.",
-    live: false,
+    description:
+      "Card payments through Stripe Checkout. Point the Stripe webhook at /api/stripe/webhook/.",
+    live: true,
     docs: "https://dashboard.stripe.com/apikeys",
     fields: [
       {

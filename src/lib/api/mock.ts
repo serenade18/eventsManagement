@@ -24,6 +24,7 @@ interface MockOrder {
   expires_at: string;
   paid_at: string | null;
   checkout_request_id: string;
+  payment_method?: "mpesa" | "card";
 }
 interface MockTicket {
   id: number;
@@ -911,7 +912,9 @@ export async function mockTransport(
       expires_at: iso(Date.now() + 10 * 60e3),
       paid_at: null,
       checkout_request_id: `ws_CO_${hex()}`,
+      payment_method: json.payment_method === "card" ? "card" : "mpesa",
     };
+    if (o.payment_method === "card") o.expires_at = iso(Date.now() + 30 * 60e3);
     d.orders.push(o);
     if (Number(tier.price) === 0) {
       issue(o);
@@ -928,6 +931,20 @@ export async function mockTransport(
       );
     }
     save();
+    // Simulated Stripe Checkout: "returns" straight to the payment page, which then pays.
+    if (o.payment_method === "card")
+      return ok({
+        error: false,
+        message: "Continue to card payment.",
+        data: {
+          ticket_number: ref,
+          order_reference: ref,
+          payment_method: "card",
+          checkout_url: `${location.origin}/orders/${ref}/pay?method=card`,
+          amount: Number(tier.price) * q,
+          expires_at: o.expires_at,
+        },
+      });
     const first = json.buyer_name.split(" ")[0];
     return ok({
       error: false,
@@ -973,6 +990,15 @@ export async function mockTransport(
       message: "Single Ticket Fetch",
       data: { ...ticketOut(t), ticket_type_details: { ...tier, event_name: ev.title } },
     });
+  }
+  if (r === "payment-methods" && method === "GET")
+    return ok({ error: false, message: "Payment methods", data: { mpesa: true, card: true } });
+  if (seg[0] === "orders" && seg[2] === "cancel-card" && method === "POST") {
+    const o = d.orders.find((x) => x.reference === decodeURIComponent(seg[1]));
+    if (!o) return fail(404, { detail: "No Order matches the given query." });
+    if (o.status === "pending") o.status = "failed";
+    save();
+    return ok({ error: false, message: "Order Fetch", data: await orderOut(o) });
   }
   if (r === "orders/:id") {
     const o = d.orders.find((x) => x.reference === decodeURIComponent(seg[1]));
